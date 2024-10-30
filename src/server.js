@@ -3,7 +3,7 @@ let ejs = require("ejs");
 // generates globally unique ids, we use for post ids
 let uuid = require("uuid");
 
-let hostname = "localhost";
+let hostname = "0.0.0.0";
 let port = 3000;
 
 let app = express();
