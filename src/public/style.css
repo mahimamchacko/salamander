@@ -1,0 +1,18 @@
+body {
+	background: pink;
+	margin: 2rem;
+}
+
+#submit {
+	display: block;
+}
+
+#content {
+	width: 100%;
+	height: 128px;
+}
+
+.post {
+	margin: 1rem 0;
+}
+
