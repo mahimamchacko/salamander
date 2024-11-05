@@ -19,8 +19,8 @@
 	<button id="submit">Make post</button>
 </div>
 
-<% for ([postId, { title }] of Object.entries(posts)) { %>
-	<div class="post"><a href="/post/<%= postId %>"><%= title %></a></div>
+<% for ({ id, title } of Object.entries(posts)) { %>
+	<div class="post"><a href="/post/<%= id %>"><%= title %></a></div>
 <% } %>
 
 <script>
