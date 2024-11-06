@@ -8,6 +8,7 @@ let { Server } = require("socket.io");
 
 let pool = require("./database");
 let authRouter = require("./auth");
+let marketRouter = require("./marketplace");
 
 let port = 3000;
 let hostname;
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/account/", authRouter);
+app.use("/market/", marketRouter);
 
 const server = http.createServer(app);
 const io = new Server(server);

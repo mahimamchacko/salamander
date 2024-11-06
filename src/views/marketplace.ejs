@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Marketplace</title>
+
+    <link rel="stylesheet" href="/style.css" />
+    <style>
+      .container {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+      }
+
+      .card img {
+        aspect-ratio: 1 / 1;
+        height: 20vh;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Market</h1>
+
+    <div id="container">
+      <% for (let product of products) {%>
+      <div class="card">
+        <img class="thumbnail" src="/products/<%= product.images[0] %>" />
+        <div class="name">item name: <%= product.name %></div>
+        <div class="owner">desc: <%= product.desc %></div>
+        <div class="desc">username: <%= product.owner %></div>
+      </div>
+      <% } %>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Add Product</title>
+    <link rel="stylesheet" href="/style.css" />
+    <style></style>
+  </head>
+
+  <body>
+    <form id="form">
+      <div>
+        <label for="name">Enter name for product: </label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          minlength="1"
+          maxlength="100"
+          required
+        />
+      </div>
+
+      <div>
+        <label for="desc">Enter a description of your product: </label>
+        <textarea id="desc" name="desc"></textarea>
+      </div>
+
+      <div>
+        <label for="images">Upload images of your product:</label>
+        <input
+          type="file"
+          id="images"
+          name="images"
+          accept="image/*"
+          multiple
+          required
+        />
+      </div>
+
+      <div id="error"></div>
+      <button type="submit" id="submit">Add Product</button>
+    </form>
+
+    <script>
+      let form = document.getElementById("form");
+      let submitButton = document.getElementById("submit");
+
+      let productName = document.getElementById("name");
+      let productDesc = document.getElementById("desc");
+      let productImages = document.getElementById("images");
+
+      let errorDiv = document.getElementById("error");
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        errorDiv.textContent = "";
+        let formData = new FormData(form);
+
+        fetch("/market/add", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => {
+            if (response.status === 200) form.reset();
+            else console.log(response);
+          })
+          .catch((error) => {
+            errorDiv.textContent = error;
+          });
+      });
+    </script>
+  </body>
+</html>
