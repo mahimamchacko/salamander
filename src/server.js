@@ -4,10 +4,10 @@ let crypto = require("crypto");
 let cookieParser = require("cookie-parser");
 let env = require("../env.json");
 let ejs = require("ejs");
-let { Pool } = require("pg");
 let uuid = require("uuid");
 let http = require("http");
 let { Server } = require("socket.io");
+let pool = require("./database");
 
 let port = 3000;
 let hostname;
@@ -33,11 +33,6 @@ const io = new Server(server);
  * @type {{ id: string, title: string, content: string }[]}
  */
 const posts = [];
-
-let pool = new Pool(env);
-pool.connect().then(() => {
-  console.log("Connected to database");
-});
 
 app.get("/", (req, res) => {
   return res.render("index", { posts });
