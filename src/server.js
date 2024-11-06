@@ -1,24 +1,17 @@
-let express = require("express");
-let cookieParser = require("cookie-parser");
-let env = require("../env.json");
-let ejs = require("ejs");
-let uuid = require("uuid");
-let http = require("http");
-let { Server } = require("socket.io");
+import express from "express";
+import cookieParser from "cookie-parser";
+import http from "http";
+import { Server } from "socket.io";
 
-let pool = require("./database");
-let authRouter = require("./auth");
-let marketRouter = require("./marketplace");
+import authRouter from "./auth.js";
+import marketRouter from "./marketplace.js";
 
 let port = 3000;
 let hostname;
-let database;
 if (process.env.NODE_ENV == "production") {
   hostname = "0.0.0.0";
-  database = { connectionString: process.env.DATABASE_URL };
 } else {
   hostname = "localhost";
-  database = { PGUSER, PGPASSWORD, PGDATABASE, PGHOST, PGPORT } = process.env;
 }
 
 let app = express();

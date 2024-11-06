@@ -1,11 +1,10 @@
-let env = require("../env.json");
-let { Pool } = require("pg");
+import env from "../env.json" assert { type: "json" };
+import pg from "pg";
+const { Pool } = pg;
 
-let pool;
-
-pool = new Pool(env);
+let pool = new Pool(env);
 pool.connect().then(() => {
   console.log("Connected to database.");
 });
 
-module.exports = pool;
+export default pool;

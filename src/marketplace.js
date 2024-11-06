@@ -1,12 +1,12 @@
-const express = require("express");
-const multer = require("multer");
-const path = require("path");
-const pool = require("./database");
+import express from "express";
+import multer from "multer";
+import path from "path";
+import pool from "./database.js";
 
 const router = express.Router();
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "public", "products"));
+    cb(null, path.join(path.dirname(""), "public", "products"));
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
 
   try {
     let product_results = await pool.query("SELECT * FROM products;");
-    rows = product_results.rows;
+    let rows = product_results.rows;
 
     for (let row of rows) {
       let product = {};
@@ -113,6 +113,7 @@ router.post("/add", authorize, upload.array("images"), async (req, res) => {
     uid = result.rows[0]["id"];
     console.log(uid);
   } catch (error) {
+      console.log(error);
     return res.status(500).json();
   }
 
@@ -153,4 +154,4 @@ router.post("/edit/:id", authorize, (req, res) => {});
 // TODO: del item func
 router.post("/delete/:id", authorize, (req, res) => {});
 
-module.exports = router;
+export default router;
