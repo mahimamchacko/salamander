@@ -38,14 +38,14 @@ router.get("/", async (req, res) => {
       // Get owner
       let user_results = await pool.query(
         "SELECT username FROM users WHERE id = $1",
-        [uid]
+        [uid],
       );
       product["owner"] = user_results.rows[0]["username"];
 
       // Get images
       let image_results = await pool.query(
         "SELECT image_name FROM images WHERE product_id = $1",
-        [pid]
+        [pid],
       );
       product["images"] = image_results.rows.map((row) => row["image_name"]);
 
@@ -113,7 +113,7 @@ router.post("/add", authorize, upload.array("images"), async (req, res) => {
     uid = result.rows[0]["id"];
     console.log(uid);
   } catch (error) {
-      console.log(error);
+    console.log(error);
     return res.status(500).json();
   }
 
@@ -123,13 +123,13 @@ router.post("/add", authorize, upload.array("images"), async (req, res) => {
     await client.query("BEGIN");
     let pid = await client.query(
       "INSERT INTO products (product_name, product_desc, user_id) VALUES ($1, $2, $3) RETURNING id;",
-      [name, desc, uid]
+      [name, desc, uid],
     );
     pid = pid.rows[0]["id"];
     for (let file of files) {
       await client.query(
         "INSERT INTO images (image_name, product_id) VALUES ($1, $2);",
-        [file.filename, pid]
+        [file.filename, pid],
       );
     }
     await client.query("COMMIT");
