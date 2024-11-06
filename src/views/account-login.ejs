@@ -21,7 +21,7 @@
       <div>
         <p id="error"></p>
       </div>
-      <button id="submit">Create account</button>
+      <button id="submit">Login</button>
     </div>
 
     <script>
@@ -33,7 +33,7 @@
       submit.addEventListener("click", async () => {
         let username = usernameElement.value;
         let password = passwordElement.value;
-        await fetch("/account/create", {
+        await fetch("/account/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -43,8 +43,9 @@
           .then((response) => {
             console.log("Status:", response.status);
             return response.json().then((body) => {
+              console.log("Body:", body);
               if (response.status >= 400) {
-                error.textContent = body.error;
+                error.textContent = body.message;
               } else {
                 error.textContent = "";
               }

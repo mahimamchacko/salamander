@@ -9,3 +9,9 @@ CREATE TABLE users
     username varchar(30),
     password varchar(100)
 );
+
+DROP TABLE IF EXISTS tokens;
+CREATE TABLE tokens
+(
+    token varchar(64) PRIMARY KEY
+);

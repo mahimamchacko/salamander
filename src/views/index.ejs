@@ -1,51 +1,48 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Posts</title>
-	<link rel="stylesheet" href="/style.css">
-</head>
-<body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Posts</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <h1>Posts</h1>
 
-<h1>Posts</h1>
+    <div id="form">
+      <div>
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" />
+      </div>
+      <textarea id="content">Write your post here...</textarea>
+      <button id="submit">Make post</button>
+    </div>
 
-<div id="form">
-	<div>
-		<label for="title">Title:</label>
-		<input type="text" id="title" name="title">
-	</div>
-	<textarea id="content">Write your post here...</textarea>
-	<button id="submit">Make post</button>
-</div>
+    <% for ({ id, title } of Object.entries(posts)) { %>
+    <div class="post"><a href="/post/<%= id %>"><%= title %></a></div>
+    <% } %>
 
-<% for ({ id, title } of Object.entries(posts)) { %>
-	<div class="post"><a href="/post/<%= id %>"><%= title %></a></div>
-<% } %>
+    <script>
+      let titleElement = document.getElementById("title");
+      let contentElement = document.getElementById("content");
+      let submit = document.getElementById("submit");
 
-<script>
-let titleElement = document.getElementById("title");
-let contentElement = document.getElementById("content");
-let submit = document.getElementById("submit");
-
-submit.addEventListener("click", async () => {
-	let title = titleElement.value;
-	let content = contentElement.value;
-	let response = await fetch("/post", {
-		method: "POST",
-		headers: {
-	    "Content-Type": "application/json"
-	  },
-	  body: JSON.stringify({title, content})
-	});
-	// TODO check for errors if didn't validate
-	let { postId } = await response.json();
-	console.log(postId);
-	// redirect to new post
-	window.location = `/post/${postId}`;
-});
-</script>
-
-</body>
+      submit.addEventListener("click", async () => {
+        let title = titleElement.value;
+        let content = contentElement.value;
+        let response = await fetch("/post", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ title, content }),
+        });
+        // TODO check for errors if didn't validate
+        let { postId } = await response.json();
+        console.log(postId);
+        // redirect to new post
+        window.location = `/post/${postId}`;
+      });
+    </script>
+  </body>
 </html>
-
