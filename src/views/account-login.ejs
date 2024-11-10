@@ -6,6 +6,10 @@
     <title>Posts</title>
     <link rel="stylesheet" href="/style.css" />
     <link rel="stylesheet" href="/account.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
   </head>
   <body>
     <h1>Salamander</h1>
@@ -17,7 +21,10 @@
         </div>
         <div>
           <label for="password">Password</label>
-          <input type="text" id="password" name="password" />
+          <div class="password-container">
+            <input type="password" id="password" name="password" />
+            <i id="password-toggle" class="fa fa-eye-slash"></i>
+          </div>
         </div>
         <div>
           <p id="error"></p>
@@ -34,6 +41,16 @@
       let passwordElement = document.getElementById("password");
       let submit = document.getElementById("submit");
       let error = document.getElementById("error");
+      let passwordToggle = document.getElementById("password-toggle");
+
+      passwordToggle.addEventListener("click", () => {
+        passwordToggle.classList.toggle("fa-eye-slash");
+        passwordToggle.classList.toggle("fa-eye");
+        password.setAttribute(
+          "type",
+          password.getAttribute("type") === "password" ? "text" : "password"
+        );
+      });
 
       submit.addEventListener("click", async () => {
         let username = usernameElement.value;

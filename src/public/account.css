@@ -13,7 +13,8 @@ body {
   gap: 1rem;
 }
 
-#form, #redirect {
+#form,
+#redirect {
   width: 200px;
   padding: 1rem;
   border-style: solid;
@@ -31,7 +32,24 @@ label {
   margin-bottom: 0.25rem;
 }
 
-input, button {
+input,
+button {
   font-size: 14px;
   padding: 0.25rem;
+}
+
+.password-container input[type="text"],
+.password-container input[type="password"] {
+  box-sizing: border-box;
+}
+
+.password-container {
+  position: relative;
+}
+
+.fa-eye,
+.fa-eye-slash {
+  position: absolute;
+  top: 18%;
+  right: 4%;
 }
