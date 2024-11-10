@@ -9,19 +9,24 @@
   </head>
   <body>
     <h1>Salamander</h1>
-    <div id="form">
-      <div>
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" />
+    <div>
+      <div id="form">
+        <div>
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" />
+        </div>
+        <div>
+          <label for="password">Password</label>
+          <input type="text" id="password" name="password" />
+        </div>
+        <div>
+          <p id="error"></p>
+        </div>
+        <button id="submit">Create</button>
       </div>
-      <div>
-        <label for="password">Password</label>
-        <input type="text" id="password" name="password" />
-      </div>
-      <div>
-        <p id="error"></p>
-      </div>
-      <button id="submit">Create</button>
+      <p id="redirect">
+        <a href="login">Continue to login</a>
+      </p>
     </div>
 
     <script>
@@ -48,6 +53,7 @@
                 error.textContent = body.message;
               } else {
                 error.textContent = "";
+                window.location.href = "/account/login";
               }
             });
           })

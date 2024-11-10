@@ -9,19 +9,24 @@
   </head>
   <body>
     <h1>Salamander</h1>
-    <div id="form">
-      <div>
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" />
+    <div>
+      <div id="form">
+        <div>
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" />
+        </div>
+        <div>
+          <label for="password">Password</label>
+          <input type="text" id="password" name="password" />
+        </div>
+        <div>
+          <p id="error"></p>
+        </div>
+        <button id="submit">Login</button>
       </div>
-      <div>
-        <label for="password">Password</label>
-        <input type="text" id="password" name="password" />
-      </div>
-      <div>
-        <p id="error"></p>
-      </div>
-      <button id="submit">Login</button>
+      <p id="redirect">
+        <a href="create">Continue to create</a>
+      </p>
     </div>
 
     <script>
@@ -39,6 +44,7 @@
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ username: username, password: password }),
+          redirect: "manual",
         })
           .then((response) => {
             console.log("Status:", response.status);
@@ -48,6 +54,7 @@
                 error.textContent = body.message;
               } else {
                 error.textContent = "";
+                window.location.href = "/";
               }
             });
           })

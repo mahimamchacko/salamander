@@ -13,6 +13,7 @@ CREATE TABLE users
 DROP TABLE IF EXISTS tokens;
 CREATE TABLE tokens
 (
+    username varchar(30),
     token varchar(64) PRIMARY KEY
 );
 

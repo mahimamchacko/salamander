@@ -10,17 +10,20 @@ body {
 #form {
   display: flex;
   flex-direction: column;
-  width: 200px;
   gap: 1rem;
+}
+
+#form, #redirect {
+  width: 200px;
+  padding: 1rem;
+  border-style: solid;
+  border-color: lightgray;
+  border-radius: 1rem;
 }
 
 #form div {
   display: flex;
   flex-direction: column;
-}
-
-#form #error {
-  color: red;
 }
 
 label {
