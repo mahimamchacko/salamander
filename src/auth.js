@@ -11,12 +11,13 @@ let cookieOptions = {
   sameSite: "strict",
 };
 
-let authorize = async (req, res, next) => {
+let authorize = (req, res, next) => {
   let { token } = req.cookies;
   if (token !== undefined) {
     next();
+  } else {
+    return res.redirect("/account/login");
   }
-  return res.redirect("/account/login");
 };
 
 router.get("/create", (req, res) => {
@@ -258,3 +259,4 @@ router.post("/logout", async (req, res) => {
 });
 
 export default router;
+export { authorize };

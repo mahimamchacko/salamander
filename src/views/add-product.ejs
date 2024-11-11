@@ -40,6 +40,28 @@
         />
       </div>
 
+      <div>
+        <label for="price">Enter minimum bidding price: </label>
+        <input
+          type="text"
+          id="price"
+          name="price"
+          inputmode="numeric"
+          pattern="^\d+(\.\d{2})?"
+          required
+        />
+      </div>
+
+      <div>
+        <label for="start">Enter time to open the auction: </label>
+        <input type="datetime-local" id="start" name="start" required />
+      </div>
+
+      <div>
+        <label for="end">Enter time to close the auction: </label>
+        <input type="datetime-local" id="end" name="end" required />
+      </div>
+
       <div id="error"></div>
       <button type="submit" id="submit">Add Product</button>
     </form>
@@ -48,9 +70,12 @@
       let form = document.getElementById("form");
       let submitButton = document.getElementById("submit");
 
-      let productName = document.getElementById("name");
-      let productDesc = document.getElementById("desc");
-      let productImages = document.getElementById("images");
+      // let productName = document.getElementById("name");
+      // let productDesc = document.getElementById("desc");
+      // let productImages = document.getElementById("images");
+      // let productPrice = document.getElementById("price");
+      // let productAuctionStart = document.getElementById("start");
+      // let productAuctionClose = document.getElementById("end");
 
       let errorDiv = document.getElementById("error");
 

@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import pool from "./database.js";
+import { authorize } from "./auth.js";
 
 const router = express.Router();
 const storage = multer.diskStorage({
@@ -25,56 +26,71 @@ router.get("/", async (req, res) => {
   let products = [];
 
   try {
-    let product_results = await pool.query("SELECT * FROM products;");
-    let rows = product_results.rows;
+    let result = await pool.query(`
+      SELECT product_id, username, product_name, product_desc, start_time, closing_time, price
+      FROM products
+      INNER JOIN users ON users.id = products.user_id
+      INNER JOIN auctions ON auctions.product_id = products.id;
+    `);
 
-    for (let row of rows) {
-      let product = {};
-      let uid = row["user_id"];
-      let pid = row["id"];
-      product["name"] = row["product_name"];
-      product["desc"] = row["product_desc"];
-
-      // Get owner
-      let user_results = await pool.query(
-        "SELECT username FROM users WHERE id = $1",
-        [uid],
+    for (let row of result.rows) {
+      let result2 = await pool.query(
+        `
+        SELECT image_name FROM images WHERE product_id = $1;  
+      `,
+        [row["product_id"]]
       );
-      product["owner"] = user_results.rows[0]["username"];
 
-      // Get images
-      let image_results = await pool.query(
-        "SELECT image_name FROM images WHERE product_id = $1",
-        [pid],
-      );
-      product["images"] = image_results.rows.map((row) => row["image_name"]);
-
-      products.push(product);
+      products.push({
+        owner: row["username"],
+        name: row["product_name"],
+        desc: row["product_desc"],
+        price: row["price"],
+        start: row["start_time"],
+        end: row["closing_time"],
+        images: result2.rows.map((row) => row["image_name"]),
+      });
     }
-  } catch (error) {
-    products = [];
-  }
+  } catch (error) {}
+
+  console.log(products);
+  return res.render("marketplace", { products: products });
+  // try {
+  //   let product_results = await pool.query("SELECT * FROM products;");
+  //   let rows = product_results.rows;
+
+  //   for (let row of rows) {
+  //     let product = {};
+  //     let uid = row["user_id"];
+  //     let pid = row["id"];
+  //     product["name"] = row["product_name"];
+  //     product["desc"] = row["product_desc"];
+
+  //     // Get owner
+  //     let user_results = await pool.query(
+  //       "SELECT username FROM users WHERE id = $1",
+  //       [uid]
+  //     );
+  //     product["owner"] = user_results.rows[0]["username"];
+
+  //     // Get images
+  //     let image_results = await pool.query(
+  //       "SELECT image_name FROM images WHERE product_id = $1",
+  //       [pid]
+  //     );
+  //     product["images"] = image_results.rows.map((row) => row["image_name"]);
+
+  //     products.push(product);
+  //   }
+  // } catch (error) {
+  //   products = [];
+  // }
 
   return res.render("marketplace", { products: products });
 });
 
 router.get("/item/:id", (req, res) => {
   // TODO: individual item view
-});
-
-//
-let authorize = (req, res, next) => {
-  // TODO: move to relevant service
-  // TODO: check if token in db
-  let { token } = req.cookies;
-  if (token !== undefined) next();
-  else return res.redirect("/account/login");
-};
-
-// TODO: remove later
-router.get("/logout", (req, res) => {
-  res.clearCookie("token");
-  return res.redirect("/account/login");
 });
 
 router.get("/add", authorize, (req, res) => {
@@ -86,34 +102,29 @@ router.post("/add", authorize, upload.array("images"), async (req, res) => {
   Object.assign(body, req.body);
   let files = req.files;
 
-  // Validation
-  if (
-    !body.hasOwnProperty("name") ||
-    !body.hasOwnProperty("desc") ||
-    files.length === 0
-  ) {
-    return res.status(400).json({ message: "Missing or incorrect inputs." });
-  }
+  let product_name = body["name"];
+  let product_desc = body["desc"];
+  let product_start_time = body["start"];
+  let product_closing_time = body["end"];
+  let product_price = body["price"];
 
-  let name = body["name"];
-  let desc = body["desc"];
+  // TODO: validation
 
-  if (name.length === 0) {
-    return res.status(400).json({ message: "Product name is required." });
-  } else if (name.length > 100) {
-    return res
-      .status(400)
-      .json({ message: "Product name cannot excceed 100 characters." });
-  }
-
-  // TODO: Get matching user from token
-  let uid;
+  // Get User ID from token
+  let { token } = req.cookies;
+  let user_id;
   try {
-    let result = await pool.query("SELECT id FROM users;");
-    uid = result.rows[0]["id"];
-    console.log(uid);
+    let result = await pool.query(
+      `
+      SELECT id FROM users
+      INNER JOIN tokens ON tokens.username = users.username
+      WHERE token = $1;
+    `,
+      [token]
+    );
+
+    user_id = result.rows[0]["id"];
   } catch (error) {
-    console.log(error);
     return res.status(500).json();
   }
 
@@ -121,17 +132,24 @@ router.post("/add", authorize, upload.array("images"), async (req, res) => {
   let client = await pool.connect();
   try {
     await client.query("BEGIN");
-    let pid = await client.query(
+    let product_id = await client.query(
       "INSERT INTO products (product_name, product_desc, user_id) VALUES ($1, $2, $3) RETURNING id;",
-      [name, desc, uid],
+      [product_name, product_desc, user_id]
     );
-    pid = pid.rows[0]["id"];
+    product_id = product_id.rows[0]["id"];
+
     for (let file of files) {
       await client.query(
         "INSERT INTO images (image_name, product_id) VALUES ($1, $2);",
-        [file.filename, pid],
+        [file.filename, product_id]
       );
     }
+
+    await client.query(
+      "INSERT INTO auctions (start_time, closing_time, price, product_id) VALUES ($1, $2, $3, $4);",
+      [product_start_time, product_closing_time, product_price, product_id]
+    );
+
     await client.query("COMMIT");
     res.status(200);
   } catch (error) {

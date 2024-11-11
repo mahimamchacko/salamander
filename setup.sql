@@ -36,7 +36,7 @@ DROP TABLE IF EXISTS images;
 CREATE TABLE images
 (
     id SERIAL PRIMARY KEY,
-    image_name TEXT NOT NULL,
+    image_name TEXT NOT NULL UNIQUE,
     product_id INT NOT NULL,
 
     CONSTRAINT fk_prod_image
@@ -51,6 +51,7 @@ CREATE TABLE auctions
     id SERIAL PRIMARY KEY,
     start_time TIMESTAMP DEFAULT NOW(),
     closing_time TIMESTAMP NOT NULL,
+    price NUMERIC(8, 2) NOT NULL CHECK (price >= 0),
     product_id INT NOT NULL,
 
     CONSTRAINT fk_prod_auction
