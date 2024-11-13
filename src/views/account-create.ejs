@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Salamander - Account Create</title>
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/account.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+  </head>
+  <body>
+    <h1>Salamander</h1>
+    <div>
+      <div id="form">
+        <div>
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" />
+        </div>
+        <div>
+          <label for="password">Password</label>
+          <div class="password-container">
+            <input type="password" id="password" name="password" />
+            <i id="password-toggle" class="fa fa-eye-slash"></i>
+          </div>
+        </div>
+        <div>
+          <p id="error"></p>
+        </div>
+        <button id="submit">Create</button>
+      </div>
+      <p id="redirect">
+        <a href="login">Continue to login</a>
+      </p>
+    </div>
+
+    <script>
+      let usernameElement = document.getElementById("username");
+      let passwordElement = document.getElementById("password");
+      let submit = document.getElementById("submit");
+      let error = document.getElementById("error");
+      let passwordToggle = document.getElementById("password-toggle");
+
+      passwordToggle.addEventListener("click", () => {
+        passwordToggle.classList.toggle("fa-eye-slash");
+        passwordToggle.classList.toggle("fa-eye");
+        password.setAttribute(
+          "type",
+          password.getAttribute("type") === "password" ? "text" : "password"
+        );
+      });
+
+      submit.addEventListener("click", async () => {
+        let username = usernameElement.value;
+        let password = passwordElement.value;
+        await fetch("/account/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username: username, password: password }),
+        })
+          .then((response) => {
+            console.log("Status:", response.status);
+            return response.json().then((body) => {
+              console.log("Body:", body);
+              if (response.status >= 400) {
+                error.textContent = body.message;
+              } else {
+                error.textContent = "";
+                window.location.href = "/account/login";
+              }
+            });
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
+    </script>
+  </body>
+</html>

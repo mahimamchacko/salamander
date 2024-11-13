@@ -1,48 +1,111 @@
-let express = require("express");
-let ejs = require("ejs");
-// generates globally unique ids, we use for post ids
-let uuid = require("uuid");
+import express from "express";
+import cookieParser from "cookie-parser";
+import http from "http";
+import { Server } from "socket.io";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
-let hostname = "0.0.0.0";
+process.chdir(dirname(fileURLToPath(import.meta.url)));
+
+import accountRouter from "./account.js";
+import marketRouter from "./marketplace.js";
+
 let port = 3000;
+let hostname;
+if (process.env.NODE_ENV == "production") {
+  hostname = "0.0.0.0";
+} else {
+  hostname = "localhost";
+}
 
 let app = express();
-
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.json());
+app.use(cookieParser());
 
-let posts = {};
+app.use("/account/", accountRouter);
+app.use("/market/", marketRouter);
 
-// res.render takes name of EJS template file in views/ (without extension)
-// and optional object that will be passed to template
-// e.g. res.render("abc", { xyz: 123 })
-// will render views/abc.ejs
-// which will have access to the variable xyz with value 123
+const server = http.createServer(app);
+const io = new Server(server);
 
-app.post("/post", (req, res) => {
-  let { title, content } = req.body; // TODO validate
-  let postId = uuid.v4();
-  posts[postId] = { title, content };
-  return res.json({ postId });
-  // could also do a res.redirect and redirect them to the new post page
-  // but then the client should use a <form> and <input type="submit">, not ajax
-});
-
-app.get("/post/:postId", (req, res) => {
-  let { postId } = req.params;
-  if (!posts.hasOwnProperty(postId)) {
-    return res.status(404).send("Post not found");
-  }
-  let { title, content } = posts[postId];
-  return res.render("post", { title, content });
-});
+/**
+ * @type {{ id: string, title: string, content: string }[]}
+ */
+const posts = [];
 
 app.get("/", (req, res) => {
   return res.render("index", { posts });
 });
 
-app.listen(port, hostname, () => {
-  console.log(`http://${hostname}:${port}`);
+app.get("/biddingroom/:roomId", (req, res) => {
+  const { roomId } = req.params;
+  return res.render("biddingroom", { roomId });
 });
 
+app.get("/biddingroom/:roomId", (req, res) => {
+  const { roomId } = req.params;
+  return res.render("biddingroom", { roomId });
+});
+
+/** @type {{ [roomId: string]: number } */
+const rooms = {};
+
+/**
+ * @param {boolean} success
+ * @param {string} msg
+ * @returns {{ success: boolean, msg: string }}
+ */
+function createSocketRes(success, msg) {
+  return { success: success, msg: msg };
+}
+
+io.on("connection", (socket) => {
+  console.log("client connected");
+  socket.on("join room", (id, callback) => {
+    if (socket.rooms.size > 1) {
+      console.log("already in a room");
+      callback(createSocketRes(false, "already in a room"));
+      return;
+    }
+
+    if (!id) {
+      callback(createSocketRes(false, "no room id"));
+      return;
+    }
+
+    if (!rooms[id]) {
+      rooms[id] = 0;
+    }
+
+    socket.join(id);
+    callback(createSocketRes(true, rooms[id]));
+  });
+
+  socket.on("make bid", (message, callback) => {
+    if (socket.rooms.size < 2) {
+      callback(createSocketRes(false, "not in a room"));
+      return;
+    }
+
+    const { roomId, amount: amountString } = message;
+    const amount = Number(amountString);
+
+    if (!roomId || !amountString || Number.isNaN(amount)) {
+      callback(createSocketRes(false, "no room ID or amount"));
+      return;
+    }
+
+    callback(createSocketRes(true, null));
+
+    if (amount > rooms[roomId]) {
+      rooms[roomId] = amount;
+      io.to(roomId).emit("new bid", amount);
+    }
+  });
+});
+
+server.listen(port, hostname, () => {
+  console.log(`http://${hostname}:${port}`);
+});

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Marketplace</title>
+
+    <link rel="stylesheet" href="/style.css" />
+    <style>
+      #market {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 75px;
+      }
+
+      .card {
+        width: calc(20% - 75px);
+        overflow: hidden;
+        box-shadow: 0px 2px 5px grey;
+      }
+
+      .card img {
+        aspect-ratio: 1 / 1;
+        width: 100%;
+      }
+
+      .card .info {
+        padding: 1rem 1rem;
+        line-height: 1.5rem;
+      }
+
+      .info .name {
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      .info .owner {
+        font-size: 0.85rem;
+      }
+
+      .info .price {
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Market</h1>
+
+    <section id="market">
+      <% if (error !== undefined) { %>
+      <div><%= error %></div>
+      <% } else if (products.length === 0) { %>
+      <div>no products...</div>
+      <% } else { %> <% for (let product of products) { %>
+      <div class="card">
+        <div class="image">
+          <img src="/products/<%= product.images[0] %>" />
+        </div>
+
+        <div class="info">
+          <div class="name"><%= product.name %></div>
+          <div class="owner"><%= product.seller %></div>
+          <div class="price">
+            <%= Intl.NumberFormat("en-US", {style: "currency", currency:
+            "USD"}).format(product.price) %>
+          </div>
+        </div>
+      </div>
+      <% } %> <% } %>
+    </section>
+  </body>
+</html>
