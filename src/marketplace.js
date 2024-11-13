@@ -7,7 +7,7 @@ import { authorize } from "./auth.js";
 const router = express.Router();
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(path.dirname(""), "public", "products"));
+    cb(null, path.join(__dirname, "public", "products"));
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
@@ -22,80 +22,102 @@ const upload = multer({
   limits: { fileSize: 2 * 1024 * 1024 },
 });
 
+/*
+
+/market/              -
+/market/add           (auth)
+/market/edit/:id      (auth on matching id)
+/market/view/:id      -
+/market/delete/:id    (auth on matching id)
+
+*/
+
+// Views
+
 router.get("/", async (req, res) => {
   let products = [];
+  let message;
 
   try {
     let result = await pool.query(`
-      SELECT product_id, username, product_name, product_desc, start_time, closing_time, price
-      FROM products
-      INNER JOIN users ON users.id = products.user_id
-      INNER JOIN auctions ON auctions.product_id = products.id;
+      SELECT 
+        p.id, 
+        username AS seller, 
+        product_name AS name, 
+        product_desc AS desc, 
+        start_time AS start, 
+        closing_time AS close, 
+        price, 
+        ARRAY_AGG(image_name) AS images
+      FROM users
+      INNER JOIN products AS p ON users.id = p.user_id
+      INNER JOIN auctions ON p.id = auctions.product_id
+      INNER JOIN images AS i ON p.id = i.product_Id
+      GROUP BY p.id, username, product_name, product_desc, start_time, closing_time, price;
     `);
 
-    for (let row of result.rows) {
-      let result2 = await pool.query(
-        `
-        SELECT image_name FROM images WHERE product_id = $1;  
-      `,
-        [row["product_id"]]
-      );
+    products = result.rows;
+    console.log(products);
+  } catch (error) {
+    console.log(error);
+    message = error;
+  }
 
-      products.push({
-        owner: row["username"],
-        name: row["product_name"],
-        desc: row["product_desc"],
-        price: row["price"],
-        start: row["start_time"],
-        end: row["closing_time"],
-        images: result2.rows.map((row) => row["image_name"]),
-      });
-    }
-  } catch (error) {}
-
-  console.log(products);
-  return res.render("marketplace", { products: products });
-  // try {
-  //   let product_results = await pool.query("SELECT * FROM products;");
-  //   let rows = product_results.rows;
-
-  //   for (let row of rows) {
-  //     let product = {};
-  //     let uid = row["user_id"];
-  //     let pid = row["id"];
-  //     product["name"] = row["product_name"];
-  //     product["desc"] = row["product_desc"];
-
-  //     // Get owner
-  //     let user_results = await pool.query(
-  //       "SELECT username FROM users WHERE id = $1",
-  //       [uid]
-  //     );
-  //     product["owner"] = user_results.rows[0]["username"];
-
-  //     // Get images
-  //     let image_results = await pool.query(
-  //       "SELECT image_name FROM images WHERE product_id = $1",
-  //       [pid]
-  //     );
-  //     product["images"] = image_results.rows.map((row) => row["image_name"]);
-
-  //     products.push(product);
-  //   }
-  // } catch (error) {
-  //   products = [];
-  // }
-
-  return res.render("marketplace", { products: products });
+  return res.render("marketplace", {
+    products: products,
+    error: message,
+  });
 });
 
-router.get("/item/:id", (req, res) => {
-  // TODO: individual item view
+router.get("/view/:id", async (req, res) => {
+  let id = req.params["id"];
+  let product;
+  let message;
+
+  // Validate on ID
+
+  try {
+    let result = await pool.query(
+      `
+      SELECT
+        username AS seller,
+        product_name as name,
+        product_desc AS desc,
+        start_time AS start,
+        closing_time AS close,
+        price,
+        ARRAY_AGG(image_name) AS images
+      FROM users
+      INNER JOIN products AS p ON users.id = p.user_id
+      INNER JOIN auctions ON p.id = auctions.product_id
+      INNER JOIN images AS i ON p.id = i.product_id
+      WHERE p.id = $1
+      GROUP BY username, product_name, product_desc, start_time, closing_time, price;
+    `,
+      [id]
+    );
+
+    product = result.rows[0];
+  } catch (error) {
+    console.log(error);
+    message = error;
+  }
+
+  console.log(product);
+
+  return res.render("product", {
+    product: product,
+    error: message,
+  });
 });
 
 router.get("/add", authorize, (req, res) => {
   res.render("add-product");
 });
+
+router.get("/edit/:id", authorize, async (req, res) => {});
+
+//
 
 router.post("/add", authorize, upload.array("images"), async (req, res) => {
   let body = Object.create(Object.prototype);
