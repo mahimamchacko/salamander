@@ -2,7 +2,7 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import pool from "./database.js";
-import { authorize } from "./auth.js";
+import { authorize } from "./account.js";
 
 const router = express.Router();
 const storage = multer.diskStorage({

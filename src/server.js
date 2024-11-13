@@ -3,7 +3,7 @@ import cookieParser from "cookie-parser";
 import http from "http";
 import { Server } from "socket.io";
 
-import authRouter from "./auth.js";
+import accountRouter from "./account.js";
 import marketRouter from "./marketplace.js";
 
 let port = 3000;
@@ -20,7 +20,7 @@ app.use(express.static("public"));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/account/", authRouter);
+app.use("/account/", accountRouter);
 app.use("/market/", marketRouter);
 
 const server = http.createServer(app);
