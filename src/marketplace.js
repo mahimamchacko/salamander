@@ -3,6 +3,10 @@ import multer from "multer";
 import path from "path";
 import pool from "./database.js";
 import { authorize } from "./account.js";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const router = express.Router();
 const storage = multer.diskStorage({

@@ -2,6 +2,10 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import http from "http";
 import { Server } from "socket.io";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+process.chdir(dirname(fileURLToPath(import.meta.url)));
 
 import accountRouter from "./account.js";
 import marketRouter from "./marketplace.js";
