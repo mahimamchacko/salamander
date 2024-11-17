@@ -55,20 +55,22 @@
       <div>no products...</div>
       <% } else { %> <% for (let product of products) { %>
       <div class="card">
-        <div class="image">
-          <img
-            src="/market/view/<%= product.id %>/<%= product.image_ids[0] %>"
-          />
-        </div>
-
-        <div class="info">
-          <div class="name"><%= product.name %></div>
-          <div class="owner"><%= product.seller %></div>
-          <div class="price">
-            <%= Intl.NumberFormat("en-US", {style: "currency", currency:
-            "USD"}).format(product.price) %>
+        <a href="/market/view/<%= product.id %>">
+          <div class="image">
+            <img
+              src="/market/view/<%= product.id %>/<%= product.image_ids[0] %>"
+            />
           </div>
-        </div>
+
+          <div class="info">
+            <div class="name"><%= product.name %></div>
+            <div class="owner"><%= product.seller %></div>
+            <div class="price">
+              <%= Intl.NumberFormat("en-US", {style: "currency", currency:
+              "USD"}).format(product.price) %>
+            </div>
+          </div>
+        </a>
       </div>
       <% } %> <% } %>
     </section>
