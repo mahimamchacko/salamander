@@ -3,20 +3,13 @@ import multer from "multer";
 import path from "path";
 import pool from "./database.js";
 import { authorize } from "./account.js";
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const router = express.Router();
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "public", "products"));
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
+const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
   cb(null, file.mimetype.startsWith("image/"));
 };
@@ -52,7 +45,8 @@ router.get("/", async (req, res) => {
         start_time AS start, 
         closing_time AS close, 
         price, 
-        ARRAY_AGG(image_name) AS images
+        ARRAY_AGG(image_name) AS image_names,
+        ARRAY_AGG(i.id) AS image_ids
       FROM users
       INNER JOIN products AS p ON users.id = p.user_id
       INNER JOIN auctions ON p.id = auctions.product_id
@@ -61,7 +55,6 @@ router.get("/", async (req, res) => {
     `);
 
     products = result.rows;
-    console.log(products);
   } catch (error) {
     console.log(error);
     message = error;
@@ -84,19 +77,21 @@ router.get("/view/:id", async (req, res) => {
     let result = await pool.query(
       `
       SELECT
+        p.id,
         username AS seller,
         product_name as name,
         product_desc AS desc,
         start_time AS start,
         closing_time AS close,
         price,
-        ARRAY_AGG(image_name) AS images
+        ARRAY_AGG(image_name) AS image_names,
+        ARRAY_AGG(i.id) AS image_ids
       FROM users
       INNER JOIN products AS p ON users.id = p.user_id
       INNER JOIN auctions ON p.id = auctions.product_id
       INNER JOIN images AS i ON p.id = i.product_id
       WHERE p.id = $1
-      GROUP BY username, product_name, product_desc, start_time, closing_time, price;
+      GROUP BY p.id, username, product_name, product_desc, start_time, closing_time, price;
     `,
       [id]
     );
@@ -113,6 +108,35 @@ router.get("/view/:id", async (req, res) => {
     product: product,
     error: message,
   });
+});
+
+router.get("/view/:id/:imageid", async (req, res) => {
+  let image_id = req.params["imageid"];
+  let image;
+  let image_type;
+  let message;
+
+  try {
+    let result = await pool.query(
+      `
+      SELECT image_name, image_data FROM images WHERE id = $1
+    `,
+      [image_id]
+    );
+
+    if (result.rows.length === 1) {
+      image = result.rows[0]["image_data"];
+      let temp = result.rows[0]["image_name"].split(".");
+      image_type = "image/" + temp[temp.length - 1];
+      return res.set("Content-Type", image_type).send(image);
+    } else {
+      message = "Image with matching id not found";
+    }
+  } catch (error) {
+    message = error;
+  }
+
+  return res.status(500).json({ error: message });
 });
 
 router.get("/add", authorize, (req, res) => {
@@ -166,8 +190,8 @@ router.post("/add", authorize, upload.array("images"), async (req, res) => {
 
     for (let file of files) {
       await client.query(
-        "INSERT INTO images (image_name, product_id) VALUES ($1, $2);",
-        [file.filename, product_id]
+        "INSERT INTO images (image_name, product_id, image_data) VALUES ($1, $2, $3);",
+        [file.originalname, product_id, file.buffer]
       );
     }
 

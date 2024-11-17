@@ -25,10 +25,11 @@
       <div><%= product.close %></div>
       <div><%= product.price %></div>
 
-      <div><%= product.images %></div>
-
-      <% for (let image of product.images) { %>
-      <img src="/products/<%= image %>" />
+      <% for (let i = 0; i < product.image_ids.length; i++) { %>
+      <img
+        src="/market/view/<%= product.id %>/<%= product.image_ids[i] %>"
+        alt="<%= product.image_names[i] %>"
+      />
       <% } %> <% } %>
     </section>
   </body>

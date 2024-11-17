@@ -36,7 +36,8 @@ DROP TABLE IF EXISTS images;
 CREATE TABLE images
 (
     id SERIAL PRIMARY KEY,
-    image_name TEXT NOT NULL UNIQUE,
+    image_name TEXT NOT NULL,
+    image_data BYTEA,
     product_id INT NOT NULL,
 
     CONSTRAINT fk_prod_image

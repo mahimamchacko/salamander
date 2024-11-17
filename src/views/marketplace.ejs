@@ -56,7 +56,9 @@
       <% } else { %> <% for (let product of products) { %>
       <div class="card">
         <div class="image">
-          <img src="/products/<%= product.images[0] %>" />
+          <img
+            src="/market/view/<%= product.id %>/<%= product.image_ids[0] %>"
+          />
         </div>
 
         <div class="info">
