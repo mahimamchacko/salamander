@@ -28,10 +28,14 @@ CREATE TABLE products
     closing_time TIMESTAMP NOT NULL,
     price NUMERIC(8, 2) NOT NULL CHECK (price >= 0),
     winner_id INT NULL,
-    uploaded_on TIMESTAMP DEFAULT NOW()
+    uploaded_on TIMESTAMP DEFAULT NOW(),
 
-    CONSTRAINT fk_user_prod
-    FOREIGN KEY(user_id)
+    CONSTRAINT fk_seller_id
+    FOREIGN KEY(seller_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE,
+    CONSTRAINT fk_winner_id
+    FOREIGN KEY(winner_id)
     REFERENCES users(id)
     ON DELETE CASCADE
 );
