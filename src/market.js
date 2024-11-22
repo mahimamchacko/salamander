@@ -32,7 +32,7 @@ const upload = multer({
 
 // Views
 
-router.get("/", async (req, res) => {
+router.get("/", authorize, async (req, res) => {
   let products = [];
   let message;
 
@@ -53,17 +53,16 @@ router.get("/", async (req, res) => {
       INNER JOIN images AS i ON p.id = i.product_Id
       GROUP BY p.id, username, product_name, product_desc, start_time, closing_time, price;
     `);
-
     products = result.rows;
+    if (products.length === 0) {
+      message = "There are no products available.";
+    }
   } catch (error) {
-    console.log(error);
+    console.log("SELECT FAILED", error);
     message = error;
   }
 
-  return res.render("marketplace", {
-    products: products,
-    error: message,
-  });
+  return res.render("market", { message, products });
 });
 
 router.get("/view/:id", async (req, res) => {

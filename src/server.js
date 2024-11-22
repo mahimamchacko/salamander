@@ -9,7 +9,7 @@ process.chdir(dirname(fileURLToPath(import.meta.url)));
 
 import accountRouter from "./account.js";
 import { router as biddingRouter, addSockets } from "./biddingrooms.js";
-import { router as marketRouter } from "./marketplace.js";
+import { router as marketRouter } from "./market.js";
 
 let port = 3000;
 let hostname;
@@ -32,8 +32,8 @@ app.use("/market/", marketRouter);
 const server = http.createServer(app);
 addSockets(server);
 
-app.get("/", authorize, (req, res) => {
-  return res.render("index");
+app.get("/", (req, res) => {
+  return res.redirect(307, "/market");
 });
 
 server.listen(port, hostname, () => {
