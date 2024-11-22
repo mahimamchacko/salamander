@@ -49,8 +49,7 @@ router.get("/", async (req, res) => {
         ARRAY_AGG(image_name) AS image_names,
         ARRAY_AGG(i.id) AS image_ids
       FROM users
-      INNER JOIN products AS p ON users.id = p.user_id
-      INNER JOIN auctions ON p.id = auctions.product_id
+      INNER JOIN products AS p ON users.id = p.seller_id
       INNER JOIN images AS i ON p.id = i.product_Id
       GROUP BY p.id, username, product_name, product_desc, start_time, closing_time, price;
     `);
@@ -88,13 +87,12 @@ router.get("/view/:id", async (req, res) => {
         ARRAY_AGG(image_name) AS image_names,
         ARRAY_AGG(i.id) AS image_ids
       FROM users
-      INNER JOIN products AS p ON users.id = p.user_id
-      INNER JOIN auctions ON p.id = auctions.product_id
+      INNER JOIN products AS p ON users.id = p.seller_id
       INNER JOIN images AS i ON p.id = i.product_id
       WHERE p.id = $1
       GROUP BY p.id, username, product_name, product_desc, start_time, closing_time, price;
     `,
-      [id],
+      [id]
     );
 
     product = result.rows[0];
@@ -122,7 +120,7 @@ router.get("/view/:id/:imageid", async (req, res) => {
       `
       SELECT image_name, image_data FROM images WHERE id = $1
     `,
-      [image_id],
+      [image_id]
     );
 
     if (result.rows.length === 1) {
@@ -171,7 +169,7 @@ router.post("/add", authorize, upload.array("images"), async (req, res) => {
       INNER JOIN tokens ON tokens.username = users.username
       WHERE token = $1;
     `,
-      [token],
+      [token]
     );
 
     user_id = result.rows[0]["id"];
@@ -184,22 +182,24 @@ router.post("/add", authorize, upload.array("images"), async (req, res) => {
   try {
     await client.query("BEGIN");
     let product_id = await client.query(
-      "INSERT INTO products (product_name, product_desc, user_id) VALUES ($1, $2, $3) RETURNING id;",
-      [product_name, product_desc, user_id],
+      "INSERT INTO products (product_name, product_desc, seller_id, start_time, closing_time, price) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;",
+      [
+        product_name,
+        product_desc,
+        user_id,
+        product_start_time,
+        product_closing_time,
+        product_price,
+      ]
     );
     product_id = product_id.rows[0]["id"];
 
     for (let file of files) {
       await client.query(
         "INSERT INTO images (image_name, product_id, image_data) VALUES ($1, $2, $3);",
-        [file.originalname, product_id, file.buffer],
+        [file.originalname, product_id, file.buffer]
       );
     }
-
-    await client.query(
-      "INSERT INTO auctions (start_time, closing_time, price, product_id) VALUES ($1, $2, $3, $4);",
-      [product_start_time, product_closing_time, product_price, product_id],
-    );
 
     await client.query("COMMIT");
 
@@ -207,7 +207,7 @@ router.post("/add", authorize, upload.array("images"), async (req, res) => {
       product_id,
       product_price,
       product_start_time,
-      product_closing_time,
+      product_closing_time
     );
 
     res.status(200);
