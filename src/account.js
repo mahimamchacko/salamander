@@ -11,11 +11,31 @@ let cookieOptions = {
   sameSite: "strict",
 };
 
-let authorize = (req, res, next) => {
+let authorize = async (req, res, next) => {
   let { token } = req.cookies;
+
   if (token !== undefined) {
-    next();
+    let result = await pool.query(
+      `
+      SELECT id
+      FROM tokens
+      INNER JOIN users ON tokens.username = users.username
+      WHERE tokens.token = $1;
+      `,
+      [token]
+    );
+
+    if (result.rows.length === 1 && result.rows[0].hasOwnProperty("id")) {
+      // Logged in
+      req.params["user"] = result.rows[0]["id"];
+      next();
+    } else {
+      // Token found, not recognized
+      res.clearCookie("token");
+      return res.redirect("/account/login");
+    }
   } else {
+    // Not logged in, no token found in cookie
     return res.redirect("/account/login");
   }
 };
