@@ -215,10 +215,6 @@ router.post("/login", async (req, res) => {
     .json({ message: "Account successfully created." });
 });
 
-router.get("/redirect", (req, res) => {
-  res.redirect("/account/create");
-});
-
 router.post("/logout", async (req, res) => {
   let { token } = req.cookies;
   console.log("Token:", token);
@@ -231,8 +227,9 @@ router.post("/logout", async (req, res) => {
       .json({ message: "The account is already logged out." });
   }
 
+  let result;
   try {
-    result = await pool.query("SELECT password FROM users WHERE token = $1", [
+    result = await pool.query("SELECT username FROM tokens WHERE token = $1", [
       token,
     ]);
   } catch (error) {
@@ -246,16 +243,15 @@ router.post("/logout", async (req, res) => {
 
   // delete token
   try {
-    result = await pool.query(
-      "UPDATE users SET token = null WHERE token = $1",
-      [token]
-    );
+    result = await pool.query("DELETE FROM tokens WHERE token = $1", [token]);
   } catch (error) {
     console.log("DELETE FAILED", error);
     return res.status(500).json({ message: "Something went wrong." });
   }
 
-  return res.clearCookie("token", cookieOptions).send();
+  return res
+    .clearCookie("token", cookieOptions)
+    .json({ message: "Account successfully logged out." });
 });
 
 export default router;

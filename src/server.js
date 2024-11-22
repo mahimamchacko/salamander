@@ -31,8 +31,8 @@ app.use("/market/", marketRouter);
 const server = http.createServer(app);
 addSockets(server);
 
-app.get("/", (_req, res) => {
-    return res.redirect(308, "/market/");
+app.get("/", (req, res) => {
+  return res.render("index");
 });
 
 server.listen(port, hostname, () => {

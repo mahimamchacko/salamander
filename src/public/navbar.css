@@ -2,5 +2,16 @@ nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1.5rem;
 }
 
+#search {
+  flex-grow: 1;
+  height: 0.5rem;
+  max-width: 40rem;
+  padding: 1rem;
+  border-style: solid;
+  border-color: black;
+  border-radius: 1rem;
+  font-size: 16px;
+}
