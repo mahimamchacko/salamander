@@ -1,4 +1,8 @@
 :root {
   font-family: "Lexend Deca", sans-serif;
-  padding: 1rem;
+  padding: 0.5rem 1rem;
+}
+
+i {
+  cursor: pointer;
 }

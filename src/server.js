@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import http from "http";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import { authorize } from "./account.js";
 
 process.chdir(dirname(fileURLToPath(import.meta.url)));
 
@@ -31,7 +32,7 @@ app.use("/market/", marketRouter);
 const server = http.createServer(app);
 addSockets(server);
 
-app.get("/", (req, res) => {
+app.get("/", authorize, (req, res) => {
   return res.render("index");
 });
 
