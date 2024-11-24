@@ -102,7 +102,7 @@ router.get("/view/:id", async (req, res) => {
 
   console.log(product);
 
-  return res.render("product", {
+  return res.render("market-view", {
     product: product,
     error: message,
   });

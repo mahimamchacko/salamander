@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Salamander - <%= product.name %></title>
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/css/market-view.css" />
+  </head>
+
+  <body>
+    <%- include('partials/navbar') %>
+    <section id="product">
+      <% if (error !== undefined) { %>
+      <div><%= error %></div>
+      <% } else if (product === undefined) { %>
+      <div>no product...</div>
+      <% } else { %>
+      <div class="info">
+        <h1 class="name"><%= product.name %></h1>
+        <p class="seller">from <%= product.seller %></p>
+        <hr />
+        <p class="description"><%= product.desc %></p>
+        <hr />
+        <p class="date-wrapper">
+          Bidding opens
+          <span class="date"
+            ><%= product.start.toLocaleDateString('en-US', { weekday: 'short',
+            year: 'numeric', month: 'short', day: 'numeric' }) %></span
+          >
+          and closes
+          <span class="date"
+            ><%= product.close.toLocaleDateString('en-US', { weekday: 'short',
+            year: 'numeric', month: 'short', day: 'numeric' }) %></span
+          >
+        </p>
+        <p class="price">US $<%= product.price %></p>
+      </div>
+      <div class="carousel-wrapper">
+        <div class="carousel">
+          <% for (let i = 0; i < product.image_ids.length; i++) { %>
+          <img
+            src="/market/view/<%= product.id %>/<%= product.image_ids[i] %>"
+            alt="<%= product.image_names[i] %>"
+            class="carousel-item"
+          />
+          <% } %>
+        </div>
+        <button class="prev" onclick="moveCarousel(-1)">
+          <i class="fa fa-arrow-circle-left"></i>
+        </button>
+        <button class="next" onclick="moveCarousel(1)">
+          <i class="fa fa-arrow-circle-right"></i>
+        </button>
+      </div>
+      <% } %>
+    </section>
+  </body>
+  <script>
+    let currentIndex = 0;
+    function moveCarousel(direction) {
+      const items = document.querySelectorAll(".carousel-item");
+      const totalItems = items.length;
+
+      // Remove active class from all images
+      items.forEach((item) => item.classList.remove("active"));
+
+      // Calculate the new index and ensure it wraps around
+      currentIndex = (currentIndex + direction + totalItems) % totalItems;
+
+      // Add active class to the new image
+      items[currentIndex].classList.add("active");
+    }
+
+    // Initialize the carousel to show the first image on page load
+    document.addEventListener("DOMContentLoaded", () => {
+      const items = document.querySelectorAll(".carousel-item");
+      items[currentIndex].classList.add("active");
+    });
+  </script>
+</html>
