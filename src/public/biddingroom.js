@@ -10,13 +10,14 @@ socket.emit("join room", roomId, ({ success, msg }) => {
     return;
   }
 
-  maxBidElem.textContent = msg;
+  maxBidElem.textContent = msg.maxBid;
+  amount.value = msg.maxBid;
 });
 
-document.getElementById("sender").addEventListener("click", () => {
+document.getElementById("sender")?.addEventListener("click", () => {
   socket.emit(
     "make bid",
-    { roomId: roomId, amount: amountElem.value },
+    { roomId: roomId, userId: userId, amount: amountElem?.value },
     ({ success, msg }) => {
       if (!success) {
         console.error(msg);
@@ -29,4 +30,11 @@ document.getElementById("sender").addEventListener("click", () => {
 socket.on("new bid", (bid) => {
   console.log(bid);
   maxBidElem.textContent = bid;
+  amount.value = bid;
+});
+
+socket.on("bidding over", (msg) => {
+  console.log(msg);
+  amount.disabled = true;
+  document.removeChild(document.getElementById("sender"));
 });

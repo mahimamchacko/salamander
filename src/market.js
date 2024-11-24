@@ -5,7 +5,7 @@ import pool from "./database.js";
 import { authorize } from "./account.js";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-import { addRoom } from "./biddingrooms.js";
+import { addRoom, getRoom } from "./biddingrooms.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -55,10 +55,11 @@ router.get("/", authorize, async (req, res) => {
   return res.render("market", { message, products });
 });
 
-router.get("/view/:id", async (req, res) => {
+router.get("/view/:id", authorize, async (req, res) => {
   let id = req.params["id"];
   let product;
   let message;
+  let userId;
 
   // Validate on ID
 
@@ -81,10 +82,22 @@ router.get("/view/:id", async (req, res) => {
       WHERE p.id = $1
       GROUP BY p.id, username, product_name, product_desc, start_time, closing_time, price;
     `,
-      [id]
+      [id],
     );
 
     product = result.rows[0];
+
+    const { token } = req.cookies;
+    const userResult = await pool.query(
+      `
+      SELECT id FROM users
+      INNER JOIN tokens ON tokens.username = users.username
+      WHERE token = $1;
+      `,
+      [token],
+    );
+
+    userId = userResult.rows[0].id;
   } catch (error) {
     console.log(error);
     message = error;
@@ -94,6 +107,8 @@ router.get("/view/:id", async (req, res) => {
 
   return res.render("market-view", {
     product: product,
+    userId: userId,
+    room: getRoom(product.id),
     error: message,
   });
 });
@@ -109,7 +124,7 @@ router.get("/view/:id/:imageid", async (req, res) => {
       `
       SELECT image_name, image_data FROM images WHERE id = $1
     `,
-      [image_id]
+      [image_id],
     );
 
     if (result.rows.length === 1) {
@@ -161,7 +176,7 @@ router.post("/add", authorize, upload.array("images"), async (req, res) => {
         product_start_time,
         product_closing_time,
         product_price,
-      ]
+      ],
     );
     product_id = product_id.rows[0]["id"];
 
@@ -177,8 +192,8 @@ router.post("/add", authorize, upload.array("images"), async (req, res) => {
     addRoom(
       product_id,
       product_price,
-      product_start_time,
-      product_closing_time
+      new Date(product_start_time),
+      new Date(product_closing_time),
     );
   } catch (error) {
     console.log(error);

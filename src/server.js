@@ -8,7 +8,7 @@ import { authorize } from "./account.js";
 process.chdir(dirname(fileURLToPath(import.meta.url)));
 
 import accountRouter from "./account.js";
-import { router as biddingRouter, addSockets } from "./biddingrooms.js";
+import { router as biddingRouter, addSockets, loadRooms } from "./biddingrooms.js";
 import { router as marketRouter } from "./market.js";
 
 let port = 3000;
@@ -32,7 +32,9 @@ app.use("/market/", marketRouter);
 const server = http.createServer(app);
 addSockets(server);
 
-app.get("/", (req, res) => {
+await loadRooms();
+
+app.get("/", authorize, (_req, res) => {
   return res.redirect(307, "/market");
 });
 

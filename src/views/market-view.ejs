@@ -34,7 +34,14 @@
             year: 'numeric', month: 'short', day: 'numeric' }) %></span
           >
         </p>
-        <p class="price">US $<%= product.price %></p>
+        <p class="price">US $<span id="max-bid"><%= room.maxBid %></span></p>
+        <% if (room.isOpen) { %>
+        <div>
+            <label for="amount">Amount</label>
+            <input id="amount" type="number" />
+        </div>
+        <button id="sender">Make bid</button>
+        <% } %>
       </div>
       <div class="carousel-wrapper">
         <div class="carousel">
@@ -53,6 +60,11 @@
           <i class="fa fa-arrow-circle-right"></i>
         </button>
       </div>
+      <script>
+          const roomId = "<%= product.id %>";
+          const userId = "<%= userId %>";
+      </script>
+      <script src="/biddingroom.js" type="module"></script>
       <% } %>
     </section>
   </body>

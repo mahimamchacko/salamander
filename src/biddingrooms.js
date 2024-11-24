@@ -1,18 +1,11 @@
 import express from "express";
 import { Server } from "socket.io";
+import pool from "./database.js";
 
 const router = express.Router();
 
-/** @type {{ [postId: string]: number } */
+/** @type {{ [postId: string]: { maxBid: number, maxBidId?: string, isOpen: boolean} } */
 const rooms = {};
-
-router.get("/:roomId", (req, res) => {
-  const { roomId } = req.params;
-  if (!rooms[roomId]) {
-    return res.status(404).send("Room not found");
-  }
-  return res.render("biddingroom", { roomId });
-});
 
 /**
  * @param {boolean} success
@@ -64,7 +57,7 @@ function addSockets(server) {
         return;
       }
 
-      const { roomId, amount: amountString } = message;
+      const { roomId, userId, amount: amountString } = message;
       const amount = Number(amountString);
 
       if (!roomId || !amountString || Number.isNaN(amount)) {
@@ -74,8 +67,8 @@ function addSockets(server) {
 
       callback(createSocketRes(true, null));
 
-      if (amount > rooms[roomId]) {
-        rooms[roomId] = amount;
+      if (amount > rooms[roomId].maxBid) {
+        rooms[roomId] = { maxBid: amount, maxBidId: userId, isOpen: true };
         io.to(roomId).emit("new bid", amount);
       }
     });
@@ -85,12 +78,73 @@ function addSockets(server) {
 /**
  * @param {string} postId
  * @param {number} startBid
- * @param {string} startTime
- * @param {string} endTime
+ * @param {Date} startTime
+ * @param {Date} endTime
  */
 function addRoom(postId, startBid, startTime, endTime) {
-  rooms[postId] = startBid;
-  console.log(startTime, endTime);
+  const now = new Date();
+
+  if (startTime > now) {
+    setTimeout(() => {
+      rooms[postId].isOpen = true;
+    }, startTime - now);
+  }
+
+  if (endTime > now) {
+    setTimeout(() => {
+      const room = rooms[postId];
+      room.isOpen = false;
+      if (!room.maxBidId) {
+        return;
+      }
+
+      pool.query(
+        `
+          UPDATE products
+          SET price = $2, winner_id = $3
+          WHERE id = $1;
+        `,
+        [postId, room.maxBid, room.maxBidId],
+      );
+
+      if (!io) {
+        return;
+      }
+
+      io.to(postId).emit("bidding over", room);
+    }, endTime - now);
+  }
+
+  const isOpen = startTime <= now && endTime > now;
+
+  rooms[postId] = { maxBid: startBid, isOpen: isOpen };
 }
 
-export { router, addSockets, addRoom };
+function getRoom(id) {
+  return rooms[id];
+}
+
+async function loadRooms() {
+  try {
+    /** @type {{ rows: { id: string, price: string, start: string, close: string }[]}} */
+    let { rows: posts } = await pool.query(
+      `
+        SELECT
+            id,
+            price,
+            start_time as start,
+            closing_time as close
+        FROM products
+        ;
+    `,
+    );
+
+    for (const post of posts) {
+      addRoom(post.id, post.price, new Date(post.start), new Date(post.close));
+    }
+  } catch (err) {
+    console.error("error loading rooms", err);
+  }
+}
+
+export { router, addSockets, addRoom, getRoom, loadRooms };
