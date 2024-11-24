@@ -2,16 +2,9 @@ import express from "express";
 import argon2 from "argon2";
 import crypto from "crypto";
 import pool from "./database.js";
+import dashboardRouter from "./dashboard.js";
 
-let router = express.Router();
-
-let cookieOptions = {
-  httpOnly: true,
-  secure: true,
-  sameSite: "strict",
-};
-
-let authorize = async (req, res, next) => {
+async function authorize(req, res, next) {
   let { token } = req.cookies;
 
   if (token !== undefined) {
@@ -38,7 +31,16 @@ let authorize = async (req, res, next) => {
     // Not logged in, no token found in cookie
     return res.redirect("/account/login");
   }
+}
+
+let cookieOptions = {
+  httpOnly: true,
+  secure: true,
+  sameSite: "strict",
 };
+
+let router = express.Router();
+router.use("/dashboard", dashboardRouter);
 
 router.get("/create", (req, res) => {
   return res.render("account-create");

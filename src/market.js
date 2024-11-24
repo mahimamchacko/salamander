@@ -20,16 +20,6 @@ const upload = multer({
   limits: { fileSize: 2 * 1024 * 1024 },
 });
 
-/*
-
-/market/              -
-/market/add           (auth)
-/market/edit/:id      (auth on matching id)
-/market/view/:id      -
-/market/delete/:id    (auth on matching id)
-
-*/
-
 // Views
 
 router.get("/", authorize, async (req, res) => {
@@ -141,15 +131,13 @@ router.get("/add", authorize, (req, res) => {
   res.render("add-product");
 });
 
-router.get("/edit/:id", authorize, async (req, res) => {});
-
 //
 
 router.post("/add", authorize, upload.array("images"), async (req, res) => {
   let body = Object.create(Object.prototype);
   Object.assign(body, req.body);
-  let files = req.files;
 
+  let files = req.files;
   let product_name = body["name"];
   let product_desc = body["desc"];
   let product_start_time = body["start"];
@@ -157,26 +145,10 @@ router.post("/add", authorize, upload.array("images"), async (req, res) => {
   let product_price = body["price"];
 
   // TODO: validation
-
-  // Get User ID from token
-  let { token } = req.cookies;
-  let user_id;
-  try {
-    let result = await pool.query(
-      `
-      SELECT id FROM users
-      INNER JOIN tokens ON tokens.username = users.username
-      WHERE token = $1;
-    `,
-      [token]
-    );
-
-    user_id = result.rows[0]["id"];
-  } catch (error) {
-    return res.status(500).json();
-  }
+  let errors = [];
 
   // Upload products into db
+  let user_id = req.params["user"];
   let client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -193,10 +165,10 @@ router.post("/add", authorize, upload.array("images"), async (req, res) => {
     );
     product_id = product_id.rows[0]["id"];
 
-    for (let file of files) {
+    for (let i = 0; i < files.length; i++) {
       await client.query(
-        "INSERT INTO images (image_name, product_id, image_data) VALUES ($1, $2, $3);",
-        [file.originalname, product_id, file.buffer]
+        "INSERT INTO images (image_name, image_data, image_order, product_id) VALUES ($1, $2, $3, $4);",
+        [files[i].originalname, files[i].buffer, i + 1, product_id]
       );
     }
 
@@ -208,26 +180,19 @@ router.post("/add", authorize, upload.array("images"), async (req, res) => {
       product_start_time,
       product_closing_time
     );
-
-    res.status(200);
   } catch (error) {
     console.log(error);
+    errors.push(error);
     await client.query("ROLLBACK");
-    res.status(400);
   } finally {
     client.release();
   }
 
-  return res.json({});
+  if (errors.length === 0) {
+    return res.status(200).redirect("/account/dashboard/");
+  } else {
+    return res.status(400).json({ errors: errors });
+  }
 });
-
-// TODO: edit item view
-router.get("/edit/:id", authorize, (req, res) => {});
-
-// TODO: edit item func
-router.post("/edit/:id", authorize, (req, res) => {});
-
-// TODO: del item func
-router.post("/delete/:id", authorize, (req, res) => {});
 
 export { router };

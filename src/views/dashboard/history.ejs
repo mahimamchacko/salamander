@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Salamander | Dashboard</title>
+
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <style>
+      form {
+        width: fit-content;
+        max-width: 30%;
+
+        div {
+          margin: 1rem 0px;
+        }
+
+        input,
+        textarea {
+          width: 100%;
+        }
+
+        textarea {
+          height: 2rem;
+        }
+
+        label {
+          display: block;
+          margin-bottom: 0.5rem;
+        }
+
+        label span {
+          display: block;
+        }
+
+        label .instruction {
+          font-weight: bold;
+        }
+
+        label .description {
+          font-style: italic;
+          color: grey;
+        }
+
+        div:last-child {
+          margin-top: 2rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        button {
+          padding: 0.25rem 0.75rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <%- include("../partials/navbar") %>
+
+    <section id="dashboard">
+      <%- include("../partials/sidebar") %>
+
+      <section id="content">
+        <div class="section-header">
+          <h3>Auctions Won History</h3>
+        </div>
+      </section>
+    </section>
+
+    <script></script>
+  </body>
+</html>

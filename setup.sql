@@ -28,12 +28,12 @@ CREATE TABLE products
     closing_time TIMESTAMP NOT NULL,
     price NUMERIC(8, 2) NOT NULL CHECK (price >= 0),
     winner_id INT NULL,
-    uploaded_on TIMESTAMP DEFAULT NOW(),
 
     CONSTRAINT fk_seller_id
     FOREIGN KEY(seller_id)
     REFERENCES users(id)
     ON DELETE CASCADE,
+
     CONSTRAINT fk_winner_id
     FOREIGN KEY(winner_id)
     REFERENCES users(id)
@@ -46,6 +46,7 @@ CREATE TABLE images
     id SERIAL PRIMARY KEY,
     image_name TEXT NOT NULL,
     image_data BYTEA,
+    image_order INT NOT NULL CHECK (image_order >= 1),
     product_id INT NOT NULL,
 
     CONSTRAINT fk_prod_image

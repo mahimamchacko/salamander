@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Salamander | Dashboard</title>
+
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <style>
+      section#content {
+        table {
+          table-layout: fixed;
+          width: 100%;
+          text-align: center;
+          border-collapse: collapse;
+
+          th {
+            background-color: grey;
+            padding: 1rem 0rem;
+          }
+
+          td {
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+
+          img {
+            aspect-ratio: 1 / 1; /* TODO: fix aspect ratio */
+            width: 100%;
+            height: auto;
+          }
+        }
+
+        table:not(.active) {
+          display: none;
+        }
+      }
+
+      .section-header {
+        a {
+          height: fit-content;
+          padding: 0.5rem 1rem;
+          border-radius: 50px;
+          border: 1px solid transparent;
+          background-color: grey;
+        }
+
+        #content-categories {
+          display: flex;
+          gap: 1.5rem;
+
+          h3.active {
+            font-weight: bold;
+            color: black;
+          }
+
+          h3:not(.active) {
+            font-weight: normal;
+            color: grey;
+            cursor: pointer;
+          }
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <%- include("../partials/navbar") %>
+
+    <section id="dashboard">
+      <%- include("../partials/sidebar") %>
+
+      <section id="content">
+        <div class="section-header">
+          <div id="content-categories">
+            <h3>Products On Sale</h3>
+            <h3>Products Sold</h3>
+          </div>
+          <a href="/account/dashboard/products/add">&plus; Add New Product</a>
+        </div>
+
+        <% let productsOnSale = []; let productsSold = []; let now = Date.now();
+        for (let product of products) { if (product.close < now) {
+        productsSold.push(product); } else { productsOnSale.push(product); } }
+        %>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Thumbnail</th>
+              <th>Product Name</th>
+              <th>Description</th>
+              <th>Minimum Bid</th>
+              <th>Auction Start</th>
+              <th>Auction End</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% if (productsOnSale.length === 0) { %>
+            <tr>
+              <td colspan="7">You have no products on sale.</td>
+            </tr>
+            <% } else { %> <% for (let product of productsOnSale) { %>
+            <tr>
+              <td>
+                <img
+                  src="/market/view/<%= product.id %>/<%= product.thumbnail_id %>"
+                  alt="<%= product.thumbnail %>"
+                />
+              </td>
+              <td><%= product.name %></td>
+              <td><%= product.desc %></td>
+              <td>$ <%= product.price %></td>
+              <td>
+                <%= product.start.toLocaleDateString() %>
+                <br />
+                <%= product.start.toLocaleTimeString() %>
+              </td>
+              <td>
+                <%= product.close.toLocaleDateString() %>
+                <br />
+                <%= product.close.toLocaleTimeString() %>
+              </td>
+              <td>
+                <div>
+                  <i class="fa fa-solid fa-pencil"></i>
+                </div>
+              </td>
+            </tr>
+            <% } %> <% } %>
+          </tbody>
+        </table>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Thumbnail</th>
+              <th>Product Name</th>
+              <th>Description</th>
+              <th>Final Bid</th>
+              <th>Auction Start</th>
+              <th>Auction End</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% if (productsSold.length === 0) { %>
+            <tr>
+              <td colspan="7">You have not sold any products.</td>
+            </tr>
+            <% } else { %> <% for (let product of productsSold) { %>
+            <tr>
+              <td>
+                <img
+                  src="/market/view/<%= product.id %>/<%= product.thumbnail_id %>"
+                  alt="<%= product.thumbnail %>"
+                />
+              </td>
+              <td><%= product.name %></td>
+              <td><%= product.desc %></td>
+              <td>$ <%= product.price %></td>
+              <td>
+                <%= product.start.toLocaleDateString() %>
+                <br />
+                <%= product.start.toLocaleTimeString() %>
+              </td>
+              <td>
+                <%= product.close.toLocaleDateString() %>
+                <br />
+                <%= product.close.toLocaleTimeString() %>
+              </td>
+              <td>
+                <div>
+                  <i class="fa fa-solid fa-pencil"></i>
+                </div>
+              </td>
+            </tr>
+            <% } %> <% } %>
+          </tbody>
+        </table>
+      </section>
+    </section>
+
+    <script>
+      let active = 0;
+      let categories = document.querySelectorAll(
+        "section#content #content-categories h3"
+      );
+      let tables = document.querySelectorAll("section#content table");
+
+      function toggleActive() {
+        for (let i = 0; i < categories.length; i++) {
+          categories[i].classList.remove("active");
+          tables[i].classList.remove("active");
+        }
+
+        categories[active].classList.add("active");
+        tables[active].classList.add("active");
+      }
+
+      for (let i = 0; i < categories.length; i++) {
+        categories[i].addEventListener("click", () => {
+          active = i;
+          toggleActive();
+        });
+      }
+      toggleActive();
+    </script>
+  </body>
+</html>
