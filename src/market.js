@@ -128,7 +128,7 @@ router.get("/view/:id/:imageid", async (req, res) => {
 });
 
 router.get("/add", authorize, (req, res) => {
-  res.render("add-product");
+  return res.redirect("/account/dashboard/products/add");
 });
 
 //
