@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Salamander - Market</title>
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/css/market.css" />
+  </head>
+  <body>
+    <%- include('partials/navbar') %>
+    <section id="market">
+      <% if (message !== undefined) { %>
+        <p><%= message %></p>
+      <% } else { %> 
+        <% for (let product of products) { %>
+          <div class="card">
+            <a href="/market/view/<%= product.id %>">
+              <div class="image">
+                <img
+                  src="/market/view/<%= product.id %>/<%= product.image_ids[0] %>"
+                />
+              </div>
+
+              <div class="info">
+                <div class="name"><%= product.name %></div>
+                <div class="price">
+                  <%= Intl.NumberFormat("en-US", {style: "currency", currency: "USD"}).format(product.price) %>
+              </div>
+            </a>
+          </div>
+        <% } %> 
+      <% } %>
+    </section>
+  </body>
+</html>

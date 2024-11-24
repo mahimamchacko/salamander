@@ -1,0 +1,33 @@
+section#dashboard {
+  display: flex;
+  gap: 1.5rem;
+}
+
+section#sidebar {
+  width: 15%;
+
+  ul {
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+  }
+
+  a li {
+    padding: 1rem 1rem;
+  }
+
+  a:hover li {
+    transition: background-color 0.3s;
+    background-color: grey;
+  }
+}
+
+section#content {
+  flex: 1;
+}
+
+section .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

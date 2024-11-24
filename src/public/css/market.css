@@ -1,0 +1,40 @@
+#market {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 0.5rem;
+  padding: 0.5rem;
+  justify-items: center;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  background: #fefefe;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.card img {
+  width: 100%;
+  height: 16rem;
+  object-fit: cover;
+}
+
+.card .info {
+  padding: 1rem 1rem;
+  line-height: 1.5rem;
+}
+
+.info .name {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.info .price {
+  font-weight: bold;
+}

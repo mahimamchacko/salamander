@@ -1,0 +1,52 @@
+<link rel="stylesheet" href="/navbar.css" />
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+/>
+
+<nav class="navbar">
+  <h1>Salamander</h1>
+  <input type="text" id="search" placeholder="Search" />
+
+  <div class="icons">
+    <a href="/account/dashboard">
+      <i class="fa fa-2x fa-solid fa-user" id="account"></i>
+    </a>
+    <i class="fa fa-sign-out fa-2x" id="logout"></i>
+  </div>
+</nav>
+
+<script>
+  let logout = document.getElementById("logout");
+  let search = document.getElementById("search");
+
+  search.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+      console.log("OK");
+    }
+  });
+
+  logout.addEventListener("click", async () => {
+    await fetch("/account/logout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      redirect: "manual",
+    })
+      .then((response) => {
+        console.log("Status:", response.status);
+        return response.json().then((body) => {
+          console.log("Body:", body);
+          if (response.status >= 400) {
+            console.log(body.message);
+          } else {
+            window.location.href = "/account/login";
+          }
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  });
+</script>

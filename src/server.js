@@ -1,14 +1,15 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import http from "http";
-import { Server } from "socket.io";
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+import { authorize } from "./account.js";
 
 process.chdir(dirname(fileURLToPath(import.meta.url)));
 
 import accountRouter from "./account.js";
-import marketRouter from "./marketplace.js";
+import { router as biddingRouter, addSockets, loadRooms } from "./biddingrooms.js";
+import { router as marketRouter } from "./market.js";
 
 let port = 3000;
 let hostname;
@@ -25,85 +26,16 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/account/", accountRouter);
+app.use("/biddingroom/", biddingRouter);
 app.use("/market/", marketRouter);
 
 const server = http.createServer(app);
-const io = new Server(server);
+addSockets(server);
 
-/**
- * @type {{ id: string, title: string, content: string }[]}
- */
-const posts = [];
+await loadRooms();
 
-app.get("/", (req, res) => {
-  return res.render("index", { posts });
-});
-
-app.get("/biddingroom/:roomId", (req, res) => {
-  const { roomId } = req.params;
-  return res.render("biddingroom", { roomId });
-});
-
-app.get("/biddingroom/:roomId", (req, res) => {
-  const { roomId } = req.params;
-  return res.render("biddingroom", { roomId });
-});
-
-/** @type {{ [roomId: string]: number } */
-const rooms = {};
-
-/**
- * @param {boolean} success
- * @param {string} msg
- * @returns {{ success: boolean, msg: string }}
- */
-function createSocketRes(success, msg) {
-  return { success: success, msg: msg };
-}
-
-io.on("connection", (socket) => {
-  console.log("client connected");
-  socket.on("join room", (id, callback) => {
-    if (socket.rooms.size > 1) {
-      console.log("already in a room");
-      callback(createSocketRes(false, "already in a room"));
-      return;
-    }
-
-    if (!id) {
-      callback(createSocketRes(false, "no room id"));
-      return;
-    }
-
-    if (!rooms[id]) {
-      rooms[id] = 0;
-    }
-
-    socket.join(id);
-    callback(createSocketRes(true, rooms[id]));
-  });
-
-  socket.on("make bid", (message, callback) => {
-    if (socket.rooms.size < 2) {
-      callback(createSocketRes(false, "not in a room"));
-      return;
-    }
-
-    const { roomId, amount: amountString } = message;
-    const amount = Number(amountString);
-
-    if (!roomId || !amountString || Number.isNaN(amount)) {
-      callback(createSocketRes(false, "no room ID or amount"));
-      return;
-    }
-
-    callback(createSocketRes(true, null));
-
-    if (amount > rooms[roomId]) {
-      rooms[roomId] = amount;
-      io.to(roomId).emit("new bid", amount);
-    }
-  });
+app.get("/", authorize, (_req, res) => {
+  return res.redirect(307, "/market");
 });
 
 server.listen(port, hostname, () => {

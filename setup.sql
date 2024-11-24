@@ -23,11 +23,19 @@ CREATE TABLE products
     id SERIAL PRIMARY KEY,
     product_name VARCHAR(100) NOT NULL,
     product_desc TEXT,
-    uploaded_on TIMESTAMP DEFAULT NOW(),
-    user_id INT NOT NULL,
+    seller_id INT NOT NULL,
+    start_time TIMESTAMP DEFAULT NOW(),
+    closing_time TIMESTAMP NOT NULL,
+    price NUMERIC(8, 2) NOT NULL CHECK (price >= 0),
+    winner_id INT NULL,
 
-    CONSTRAINT fk_user_prod
-    FOREIGN KEY(user_id)
+    CONSTRAINT fk_seller_id
+    FOREIGN KEY(seller_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE,
+
+    CONSTRAINT fk_winner_id
+    FOREIGN KEY(winner_id)
     REFERENCES users(id)
     ON DELETE CASCADE
 );
@@ -36,25 +44,12 @@ DROP TABLE IF EXISTS images;
 CREATE TABLE images
 (
     id SERIAL PRIMARY KEY,
-    image_name TEXT NOT NULL UNIQUE,
+    image_name TEXT NOT NULL,
+    image_data BYTEA,
+    image_order INT NOT NULL CHECK (image_order >= 1),
     product_id INT NOT NULL,
 
     CONSTRAINT fk_prod_image
-    FOREIGN KEY (product_id)
-    REFERENCES products(id)
-    ON DELETE CASCADE
-);
-
-DROP TABLE IF EXISTS auctions;
-CREATE TABLE auctions 
-(
-    id SERIAL PRIMARY KEY,
-    start_time TIMESTAMP DEFAULT NOW(),
-    closing_time TIMESTAMP NOT NULL,
-    price NUMERIC(8, 2) NOT NULL CHECK (price >= 0),
-    product_id INT NOT NULL,
-
-    CONSTRAINT fk_prod_auction
     FOREIGN KEY (product_id)
     REFERENCES products(id)
     ON DELETE CASCADE
