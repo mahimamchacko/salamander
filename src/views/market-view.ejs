@@ -34,13 +34,18 @@
             year: 'numeric', month: 'short', day: 'numeric' }) %></span
           >
         </p>
-        <p class="price">US $<span id="max-bid"><%= room.maxBid %></span></p>
+        <p>
+          The current bid is at
+          <span class="price">
+            US $<span id="max-bid"><%= room.maxBid %></span>
+          </span>
+        </p>
         <% if (room.isOpen) { %>
         <div>
-          <label for="amount">Amount</label>
+          <label for="amount">Amount US $</label>
           <input id="amount" type="number" />
+          <button id="sender">Make bid</button>
         </div>
-        <button id="sender">Make bid</button>
         <% } %>
       </div>
       <div class="carousel-wrapper">
@@ -79,12 +84,9 @@
       }
 
       let currentIndex = 0;
-
       function moveCarousel(direction) {
         let totalItems = items.length;
-
         currentIndex = (currentIndex + direction + totalItems) % totalItems;
-
         let offset = -currentIndex * 100;
         carousel.style.transform = `translateX(${offset}%)`;
         console.log(`Moved to index: ${currentIndex}`);
@@ -92,12 +94,10 @@
 
       let prevButton = document.querySelector(".prev");
       let nextButton = document.querySelector(".next");
-
       if (prevButton && nextButton) {
         prevButton.addEventListener("click", function () {
           moveCarousel(-1);
         });
-
         nextButton.addEventListener("click", function () {
           moveCarousel(1);
         });
