@@ -82,7 +82,7 @@ router.get("/view/:id", authorize, async (req, res) => {
       WHERE p.id = $1
       GROUP BY p.id, username, product_name, product_desc, start_time, closing_time, price;
     `,
-      [id],
+      [id]
     );
 
     product = result.rows[0];
@@ -94,7 +94,7 @@ router.get("/view/:id", authorize, async (req, res) => {
       INNER JOIN tokens ON tokens.username = users.username
       WHERE token = $1;
       `,
-      [token],
+      [token]
     );
 
     userId = userResult.rows[0].id;
@@ -124,7 +124,7 @@ router.get("/view/:id/:imageid", async (req, res) => {
       `
       SELECT image_name, image_data FROM images WHERE id = $1
     `,
-      [image_id],
+      [image_id]
     );
 
     if (result.rows.length === 1) {
@@ -176,7 +176,7 @@ router.post("/add", authorize, upload.array("images"), async (req, res) => {
         product_start_time,
         product_closing_time,
         product_price,
-      ],
+      ]
     );
     product_id = product_id.rows[0]["id"];
 
@@ -193,7 +193,7 @@ router.post("/add", authorize, upload.array("images"), async (req, res) => {
       product_id,
       product_price,
       new Date(product_start_time),
-      new Date(product_closing_time),
+      new Date(product_closing_time)
     );
   } catch (error) {
     console.log(error);

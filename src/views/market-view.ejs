@@ -34,13 +34,18 @@
             year: 'numeric', month: 'short', day: 'numeric' }) %></span
           >
         </p>
-        <p class="price">US $<span id="max-bid"><%= room.maxBid %></span></p>
+        <p>
+          The current bid is at
+          <span class="price">
+            US $<span id="max-bid"><%= room.maxBid %></span>
+          </span>
+        </p>
         <% if (room.isOpen) { %>
         <div>
-            <label for="amount">Amount</label>
-            <input id="amount" type="number" />
+          <label for="amount">Amount US $</label>
+          <input id="amount" type="number" />
+          <button id="sender">Make bid</button>
         </div>
-        <button id="sender">Make bid</button>
         <% } %>
       </div>
       <div class="carousel-wrapper">
@@ -53,41 +58,52 @@
           />
           <% } %>
         </div>
-        <button class="prev" onclick="moveCarousel(-1)">
+        <button class="prev">
           <i class="fa fa-arrow-circle-left"></i>
         </button>
-        <button class="next" onclick="moveCarousel(1)">
+        <button class="next">
           <i class="fa fa-arrow-circle-right"></i>
         </button>
       </div>
       <script>
-          const roomId = "<%= product.id %>";
-          const userId = "<%= userId %>";
+        const roomId = "<%= product.id %>";
+        const userId = "<%= userId %>";
       </script>
       <script src="/biddingroom.js" type="module"></script>
       <% } %>
     </section>
   </body>
   <script>
-    let currentIndex = 0;
-    function moveCarousel(direction) {
-      const items = document.querySelectorAll(".carousel-item");
-      const totalItems = items.length;
+    document.addEventListener("DOMContentLoaded", function () {
+      let carousel = document.querySelector(".carousel");
+      let items = document.querySelectorAll(".carousel-item");
 
-      // Remove active class from all images
-      items.forEach((item) => item.classList.remove("active"));
+      if (!carousel || items.length === 0) {
+        console.error("Carousel elements not found.");
+        return;
+      }
 
-      // Calculate the new index and ensure it wraps around
-      currentIndex = (currentIndex + direction + totalItems) % totalItems;
+      let currentIndex = 0;
+      function moveCarousel(direction) {
+        let totalItems = items.length;
+        currentIndex = (currentIndex + direction + totalItems) % totalItems;
+        let offset = -currentIndex * 100;
+        carousel.style.transform = `translateX(${offset}%)`;
+        console.log(`Moved to index: ${currentIndex}`);
+      }
 
-      // Add active class to the new image
-      items[currentIndex].classList.add("active");
-    }
-
-    // Initialize the carousel to show the first image on page load
-    document.addEventListener("DOMContentLoaded", () => {
-      const items = document.querySelectorAll(".carousel-item");
-      items[currentIndex].classList.add("active");
+      let prevButton = document.querySelector(".prev");
+      let nextButton = document.querySelector(".next");
+      if (prevButton && nextButton) {
+        prevButton.addEventListener("click", function () {
+          moveCarousel(-1);
+        });
+        nextButton.addEventListener("click", function () {
+          moveCarousel(1);
+        });
+      } else {
+        console.error("Navigation buttons not found.");
+      }
     });
   </script>
 </html>

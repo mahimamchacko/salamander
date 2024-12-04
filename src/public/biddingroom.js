@@ -23,7 +23,7 @@ document.getElementById("sender")?.addEventListener("click", () => {
         console.error(msg);
         return;
       }
-    },
+    }
   );
 });
 
