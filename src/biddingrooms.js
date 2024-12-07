@@ -98,6 +98,8 @@ function addRoom(postId, startBid, startTime, endTime) {
         return;
       }
 
+      io.to(postId.toString()).emit("bidding over", room);
+
       pool.query(
         `
           UPDATE products
@@ -106,12 +108,6 @@ function addRoom(postId, startBid, startTime, endTime) {
         `,
         [postId, room.maxBid, room.maxBidId],
       );
-
-      if (!io) {
-        return;
-      }
-
-      io.to(postId).emit("bidding over", room);
     }, endTime - now);
   }
 
