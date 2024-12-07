@@ -21,11 +21,14 @@
           }
 
           td {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-
             border-bottom: 1px solid grey;
+            word-wrap: break-word;
+
+            &:nth-child(3) {
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+            }
           }
 
           img {
@@ -50,7 +53,7 @@
           padding: 0.5rem 1rem;
           border-radius: 50px;
           border: 1px solid transparent;
-          background-color: #55E480;
+          background-color: #55e480;
         }
 
         #content-categories {

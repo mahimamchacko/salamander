@@ -176,7 +176,7 @@
               type="datetime-local"
               id="start"
               name="start"
-              value="<%= now.getFullYear() %>-<%= now.getMonth() + 1 %>-<%= now.getDate() %>T<%= now.getHours() %>:<%= now.getMinutes() %>"
+              value="<%= now.toISOString().slice(0, 16); %>"
               required
             />
           </div>
@@ -195,7 +195,7 @@
               type="datetime-local"
               id="end"
               name="end"
-              value="<%= now.getFullYear() %>-<%= now.getMonth() + 1 %>-<%= now.getDate() %>T<%= now.getHours() %>:<%= now.getMinutes() %>"
+              value="<%= now.toISOString().slice(0, 16); %>"
               required
             />
           </div>
