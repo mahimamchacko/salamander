@@ -28,3 +28,10 @@ nav {
   border-radius: 1rem;
   font-size: 16px;
 }
+
+#logo {
+  background-color: #55e480;
+  border-radius: 10px;
+  color: #333333;
+  padding: 0.4rem;
+}
