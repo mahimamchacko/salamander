@@ -1,6 +1,7 @@
 import express from "express";
 import { Server } from "socket.io";
 import pool from "./database.js";
+import { setNotification } from "./notifications.js";
 
 const router = express.Router();
 
@@ -106,8 +107,19 @@ function addRoom(postId, startBid, startTime, endTime) {
           SET price = $2, winner_id = $3
           WHERE id = $1;
         `,
-        [postId, room.maxBid, room.maxBidId],
+        [postId, room.maxBid, room.maxBidId]
       );
+
+      if (!io) {
+        return;
+      }
+
+      io.to(postId).emit("bidding over", room);
+
+      let winnerIdInt = Number.parseInt(room.maxBidId);
+      if (Number.isInteger(winnerIdInt)) {
+        setNotification(winnerIdInt, true);
+      }
     }, endTime - now);
   }
 
@@ -132,7 +144,7 @@ async function loadRooms() {
             closing_time as close
         FROM products
         ;
-    `,
+    `
     );
 
     for (const post of posts) {

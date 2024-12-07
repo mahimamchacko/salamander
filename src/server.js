@@ -8,8 +8,13 @@ import { authorize } from "./account.js";
 process.chdir(dirname(fileURLToPath(import.meta.url)));
 
 import accountRouter from "./account.js";
-import { router as biddingRouter, addSockets, loadRooms } from "./biddingrooms.js";
+import {
+  router as biddingRouter,
+  addSockets,
+  loadRooms,
+} from "./biddingrooms.js";
 import { router as marketRouter } from "./market.js";
+import { router as notifRouter } from "./notifications.js";
 
 let port = 3000;
 let hostname;
@@ -28,6 +33,7 @@ app.use(cookieParser());
 app.use("/account/", accountRouter);
 app.use("/biddingroom/", biddingRouter);
 app.use("/market/", marketRouter);
+app.use("/notification/", notifRouter);
 
 const server = http.createServer(app);
 addSockets(server);

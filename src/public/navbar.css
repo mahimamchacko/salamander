@@ -12,6 +12,10 @@ nav {
   align-items: center;
   gap: 1.5rem;
 
+  #notification.active {
+    color: red;
+  }
+
   i:hover {
     transition: color 0.3s;
     color: grey;

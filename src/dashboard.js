@@ -1,6 +1,7 @@
 import express from "express";
 import pool from "./database.js";
 import { authorize } from "./account.js";
+import { setNotification } from "./notifications.js";
 
 const router = express.Router();
 
@@ -61,6 +62,7 @@ router.get("/products/add", authorize, (req, res) => {
 });
 
 router.get("/purchases", authorize, async (req, res) => {
+  setNotification(req.params["user"], false);
   return res.render("dashboard/history");
 });
 
