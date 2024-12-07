@@ -41,6 +41,7 @@ router.get("/", authorize, async (req, res) => {
       FROM users
       INNER JOIN products AS p ON users.id = p.seller_id
       INNER JOIN images AS i ON p.id = i.product_Id
+      WHERE closing_time < NOW()
       GROUP BY p.id, username, product_name, product_desc, start_time, closing_time, price;
     `);
     products = result.rows;
