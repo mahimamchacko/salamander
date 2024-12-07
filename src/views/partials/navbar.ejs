@@ -20,9 +20,9 @@
   let logout = document.getElementById("logout");
   let search = document.getElementById("search");
 
-  search.addEventListener("keypress", (event) => {
+  search.addEventListener("keypress", async (event) => {
     if (event.key === "Enter") {
-      console.log("OK");
+      window.location.href = `/market/search?name=${search.value}`;
     }
   });
 

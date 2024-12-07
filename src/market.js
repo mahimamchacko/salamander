@@ -20,8 +20,6 @@ const upload = multer({
   limits: { fileSize: 2 * 1024 * 1024 },
 });
 
-// Views
-
 router.get("/", authorize, async (req, res) => {
   let products = [];
   let message;
@@ -44,6 +42,48 @@ router.get("/", authorize, async (req, res) => {
       WHERE closing_time > NOW()
       GROUP BY p.id, username, product_name, product_desc, start_time, closing_time, price;
     `);
+    products = result.rows;
+    if (products.length === 0) {
+      message = "There are no products available.";
+    }
+  } catch (error) {
+    console.log("SELECT FAILED", error);
+    message = error;
+  }
+
+  return res.render("market", { message, products });
+});
+
+router.get("/search", async (req, res) => {
+  console.log(req.query);
+  let name = req.query.name;
+  let products = [];
+  let message;
+
+  console.log("Name:", name);
+
+  try {
+    let result = await pool.query(
+      `
+      SELECT 
+        p.id, 
+        username AS seller, 
+        product_name AS name, 
+        product_desc AS desc, 
+        start_time AS start, 
+        closing_time AS close, 
+        price, 
+        ARRAY_AGG(image_name) AS image_names,
+        ARRAY_AGG(i.id) AS image_ids
+      FROM users
+      INNER JOIN products AS p ON users.id = p.seller_id
+      INNER JOIN images AS i ON p.id = i.product_Id
+      WHERE closing_time > NOW()
+      AND LOWER(product_name) like $1
+      GROUP BY p.id, username, product_name, product_desc, start_time, closing_time, price;
+    `,
+      [`%${name.toLowerCase()}%`]
+    );
     products = result.rows;
     if (products.length === 0) {
       message = "There are no products available.";
@@ -146,8 +186,6 @@ router.get("/view/:id/:imageid", async (req, res) => {
 router.get("/add", authorize, (req, res) => {
   return res.redirect("/account/dashboard/products/add");
 });
-
-//
 
 router.post("/add", authorize, upload.array("images"), async (req, res) => {
   let body = Object.create(Object.prototype);
