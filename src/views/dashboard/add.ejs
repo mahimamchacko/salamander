@@ -242,9 +242,14 @@
 
     <script>
       let form = document.getElementById("form");
+
       form.addEventListener("submit", (event) => {
         event.preventDefault();
         let formData = new FormData(form);
+
+        for (let input of form.querySelectorAll("input, textarea, button")) {
+          input.disabled = true;
+        }
 
         fetch("/market/add", {
           method: "POST",
@@ -257,6 +262,13 @@
           })
           .catch((error) => {
             console.log(error);
+          })
+          .finally(() => {
+            for (let input of form.querySelectorAll(
+              "input, textarea, button"
+            )) {
+              input.disabled = false;
+            }
           });
       });
     </script>
