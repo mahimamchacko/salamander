@@ -72,3 +72,7 @@ p {
 .next i {
   font-size: 1.5rem;
 }
+
+p.description {
+  white-space: pre-wrap;
+}

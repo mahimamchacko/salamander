@@ -8,50 +8,64 @@
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/dashboard.css" />
     <style>
-      form {
-        width: fit-content;
-        max-width: 30%;
-
-        div {
-          margin: 1rem 0px;
-        }
-
-        input,
-        textarea {
+      section#content {
+        table {
+          table-layout: fixed;
           width: 100%;
+          text-align: center;
+          border-collapse: collapse;
+
+          th {
+            background-color: #00c795;
+            padding: 1rem 0rem;
+          }
+
+          td {
+            border-bottom: 1px solid grey;
+            word-wrap: break-word;
+
+            &:nth-child(3) {
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+            }
+          }
+
+          img {
+            aspect-ratio: 1 / 1;
+            width: 100%;
+            height: auto;
+          }
+
+          tbody tr {
+            cursor: pointer;
+          }
+        }
+      }
+
+      .section-header {
+        a {
+          height: fit-content;
+          padding: 0.5rem 1rem;
+          border-radius: 50px;
+          border: 1px solid transparent;
+          background-color: #55e480;
         }
 
-        textarea {
-          height: 2rem;
-        }
-
-        label {
-          display: block;
-          margin-bottom: 0.5rem;
-        }
-
-        label span {
-          display: block;
-        }
-
-        label .instruction {
-          font-weight: bold;
-        }
-
-        label .description {
-          font-style: italic;
-          color: grey;
-        }
-
-        div:last-child {
-          margin-top: 2rem;
+        #content-categories {
           display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
+          gap: 1.5rem;
 
-        button {
-          padding: 0.25rem 0.75rem;
+          h3.active {
+            font-weight: bold;
+            color: black;
+          }
+
+          h3:not(.active) {
+            font-weight: normal;
+            color: grey;
+            cursor: pointer;
+          }
         }
       }
     </style>
@@ -67,6 +81,51 @@
         <div class="section-header">
           <h3>Auctions Won History</h3>
         </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Thumbnail</th>
+              <th>Product Name</th>
+              <th>Description</th>
+              <th>Final Bid</th>
+              <th>Auction Start</th>
+              <th>Auction End</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% if (products.length === 0) { %>
+            <tr>
+              <td colspan="6">You have not won any products.</td>
+            </tr>
+            <% } else { %> <% for (let product of products) { %>
+            <tr
+              onclick="window.open('/market/view/<%= product.id %>', '_blank');"
+            >
+              <td>
+                <img
+                  src="/market/view/<%= product.id %>/<%= product.thumbnail_id %>"
+                  alt="<%= product.thumbnail %>"
+                />
+              </td>
+              <td><%= product.name %></td>
+              <td><%= product.desc %></td>
+              <td>$ <%= product.price %></td>
+              <td>
+                <%= product.start.toLocaleDateString() %>
+                <br />
+                <%= product.start.toLocaleTimeString() %>
+              </td>
+              <td>
+                <%= product.close.toLocaleDateString() %>
+                <br />
+                <%= product.close.toLocaleTimeString() %>
+              </td>
+            </tr>
+            <% } %> <% } %>
+          </tbody>
+        </table>
       </section>
     </section>
 

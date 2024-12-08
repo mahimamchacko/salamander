@@ -62,8 +62,36 @@ router.get("/products/add", authorize, (req, res) => {
 });
 
 router.get("/purchases", authorize, async (req, res) => {
+  let user = req.params["user"];
+  let products = [];
+
+  try {
+    let result = await pool.query(
+      `
+      SELECT
+        p.id,
+        product_name AS name,
+        product_desc AS desc,
+        start_time AS start,
+        closing_time AS close,
+        price,
+        (winner_id IS NOT NULL) AS sold,
+        image_name AS thumbnail,
+        i.id AS thumbnail_id
+      FROM products AS p
+      INNER JOIN images AS i ON p.id = i.product_id
+      WHERE p.winner_id = $1 AND i.image_order = 1;
+    `,
+      [user]
+    );
+
+    products = result.rows;
+  } catch (error) {
+    console.log(error);
+  }
+
   setNotification(req.params["user"], false);
-  return res.render("dashboard/history");
+  return res.render("dashboard/history", { products: products });
 });
 
 export default router;
