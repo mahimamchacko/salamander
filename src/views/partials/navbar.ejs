@@ -1,14 +1,17 @@
-<link rel="stylesheet" href="/navbar.css" />
+<link rel="stylesheet" href="/css/navbar.css" />
 <link
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
 />
 
 <nav class="navbar">
-  <h1><a href="/">Salamander</a></h1>
+  <h1 id="logo"><a href="/">Salamander</a></h1>
   <input type="text" id="search" placeholder="Search" />
 
   <div class="icons">
+    <a href="/account/dashboard/purchases">
+      <i class="fa fa-2x fa-solid fa-bell" id="notification"></i>
+    </a>
     <a href="/account/dashboard">
       <i class="fa fa-2x fa-solid fa-user" id="account"></i>
     </a>
@@ -20,9 +23,9 @@
   let logout = document.getElementById("logout");
   let search = document.getElementById("search");
 
-  search.addEventListener("keypress", (event) => {
+  search.addEventListener("keypress", async (event) => {
     if (event.key === "Enter") {
-      console.log("OK");
+      window.location.href = `/market/search?name=${search.value}`;
     }
   });
 
@@ -49,4 +52,20 @@
         console.log(error);
       });
   });
+</script>
+
+<script>
+  let notificationIcon = document.getElementById("notification");
+
+  fetch("/notification/")
+    .then((response) => response.json())
+    .then((response) => {
+      console.log(response);
+
+      if (response) {
+        notificationIcon.classList.add("active");
+      } else {
+        notificationIcon.classList.remove("active");
+      }
+    });
 </script>

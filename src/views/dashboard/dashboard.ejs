@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Salamander | Dashboard</title>
 
-    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/dashboard.css" />
     <style>
       section#content {
@@ -16,19 +16,29 @@
           border-collapse: collapse;
 
           th {
-            background-color: grey;
+            background-color: #00c795;
             padding: 1rem 0rem;
           }
 
           td {
-            overflow: hidden;
-            text-overflow: ellipsis;
+            border-bottom: 1px solid grey;
+            word-wrap: break-word;
+
+            &:nth-child(3) {
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+            }
           }
 
           img {
-            aspect-ratio: 1 / 1; /* TODO: fix aspect ratio */
+            aspect-ratio: 1 / 1;
             width: 100%;
             height: auto;
+          }
+
+          tbody tr {
+            cursor: pointer;
           }
         }
 
@@ -43,7 +53,7 @@
           padding: 0.5rem 1rem;
           border-radius: 50px;
           border: 1px solid transparent;
-          background-color: grey;
+          background-color: #55e480;
         }
 
         #content-categories {
@@ -80,11 +90,6 @@
           <a href="/account/dashboard/products/add">&plus; Add New Product</a>
         </div>
 
-        <% let productsOnSale = []; let productsSold = []; let now = Date.now();
-        for (let product of products) { if (product.close < now) {
-        productsSold.push(product); } else { productsOnSale.push(product); } }
-        %>
-
         <table>
           <thead>
             <tr>
@@ -94,17 +99,18 @@
               <th>Minimum Bid</th>
               <th>Auction Start</th>
               <th>Auction End</th>
-              <th>Actions</th>
             </tr>
           </thead>
 
           <tbody>
             <% if (productsOnSale.length === 0) { %>
             <tr>
-              <td colspan="7">You have no products on sale.</td>
+              <td colspan="6">You have no products on sale.</td>
             </tr>
             <% } else { %> <% for (let product of productsOnSale) { %>
-            <tr>
+            <tr
+              onclick="window.open('/market/view/<%= product.id %>', '_blank');"
+            >
               <td>
                 <img
                   src="/market/view/<%= product.id %>/<%= product.thumbnail_id %>"
@@ -123,11 +129,6 @@
                 <%= product.close.toLocaleDateString() %>
                 <br />
                 <%= product.close.toLocaleTimeString() %>
-              </td>
-              <td>
-                <div>
-                  <i class="fa fa-solid fa-pencil"></i>
-                </div>
               </td>
             </tr>
             <% } %> <% } %>
@@ -143,17 +144,18 @@
               <th>Final Bid</th>
               <th>Auction Start</th>
               <th>Auction End</th>
-              <th>Actions</th>
             </tr>
           </thead>
 
           <tbody>
             <% if (productsSold.length === 0) { %>
             <tr>
-              <td colspan="7">You have not sold any products.</td>
+              <td colspan="6">You have not sold any products.</td>
             </tr>
             <% } else { %> <% for (let product of productsSold) { %>
-            <tr>
+            <tr
+              onclick="window.open('/market/view/<%= product.id %>', '_blank');"
+            >
               <td>
                 <img
                   src="/market/view/<%= product.id %>/<%= product.thumbnail_id %>"
@@ -172,11 +174,6 @@
                 <%= product.close.toLocaleDateString() %>
                 <br />
                 <%= product.close.toLocaleTimeString() %>
-              </td>
-              <td>
-                <div>
-                  <i class="fa fa-solid fa-pencil"></i>
-                </div>
               </td>
             </tr>
             <% } %> <% } %>

@@ -3,6 +3,7 @@ import argon2 from "argon2";
 import crypto from "crypto";
 import pool from "./database.js";
 import dashboardRouter from "./dashboard.js";
+import { addNewUser } from "./notifications.js";
 
 async function authorize(req, res, next) {
   let { token } = req.cookies;
@@ -67,6 +68,7 @@ router.post("/create", async (req, res) => {
 
   let username = req.body.username;
   let password = req.body.password;
+  let userid;
 
   // validate that arguments meet requirements
   if (
@@ -121,15 +123,17 @@ router.post("/create", async (req, res) => {
 
   // create user
   try {
-    await pool.query("INSERT INTO users (username, password) VALUES ($1, $2)", [
-      username,
-      hash,
-    ]);
+    let result = await pool.query(
+      "INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id;",
+      [username, hash]
+    );
+    userid = result.rows[0]["id"];
   } catch (error) {
     console.log("INSERT FAILED", error);
     return res.status(500).json({ message: "Something went wrong." });
   }
 
+  addNewUser(userid);
   return res.status(200).json({ message: "Account successfully created." });
 });
 

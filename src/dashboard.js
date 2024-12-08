@@ -1,6 +1,7 @@
 import express from "express";
 import pool from "./database.js";
 import { authorize } from "./account.js";
+import { setNotification } from "./notifications.js";
 
 const router = express.Router();
 
@@ -13,6 +14,8 @@ router.get("/", authorize, (req, res) => {
 router.get("/products", authorize, async (req, res) => {
   let user = req.params["user"];
   let products = [];
+  let productsOnSale = [];
+  let productsSold = [];
 
   try {
     let result = await pool.query(
@@ -35,11 +38,23 @@ router.get("/products", authorize, async (req, res) => {
     );
 
     products = result.rows;
+    let now = new Date();
+    for (let product of products) {
+      if (product.close < now) {
+        productsSold.push(product);
+      } else {
+        productsOnSale.push(product);
+      }
+    }
   } catch (error) {
     console.log(error);
   }
 
-  res.render("dashboard/dashboard", { products: products });
+  res.render("dashboard/dashboard", {
+    products: products,
+    productsOnSale: productsOnSale,
+    productsSold: productsSold,
+  });
 });
 
 router.get("/products/add", authorize, (req, res) => {
@@ -47,6 +62,7 @@ router.get("/products/add", authorize, (req, res) => {
 });
 
 router.get("/purchases", authorize, async (req, res) => {
+  setNotification(req.params["user"], false);
   return res.render("dashboard/history");
 });
 

@@ -12,6 +12,16 @@ nav {
   align-items: center;
   gap: 1.5rem;
 
+  #notification.active::after {
+    content: "";
+    background-color: red;
+    border-radius: 50%;
+    position: absolute;
+    height: 1rem;
+    width: 1rem;
+    transform: translateX(-50%) translateY(-50%);
+  }
+
   i:hover {
     transition: color 0.3s;
     color: grey;
@@ -27,4 +37,11 @@ nav {
   border-color: black;
   border-radius: 1rem;
   font-size: 16px;
+}
+
+#logo {
+  background-color: #55e480;
+  border-radius: 10px;
+  color: #333333;
+  padding: 0.4rem;
 }
