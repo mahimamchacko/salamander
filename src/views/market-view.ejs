@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Salamander - <%= product.name %></title>
+    <title>Salamander - <%= product ? product.name : "Invalid Product" %></title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/market-view.css" />
   </head>
@@ -14,7 +14,7 @@
       <% if (error !== undefined) { %>
       <div><%= error %></div>
       <% } else if (product === undefined) { %>
-      <div>no product...</div>
+      <div style="margin-right: auto;">This product does not exist.</div>
       <% } else { %>
       <div class="info">
         <h1 class="name"><%= product.name %></h1>
