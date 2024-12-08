@@ -170,7 +170,7 @@
             </label>
             <% 
               let now = new Date(); now.setMinutes(now.getMinutes());
-              let localDate = now.toLocaleString('en-GB', { timeZone: 'UTC' }).split(', ')[0].split('/').reverse().join('-');
+              let localDate = now.toLocaleString('en-GB', { timeZone: 'EST' }).split(', ')[0].split('/').reverse().join('-');
               let hours = String(now.getHours()).padStart(2, '0');
               let minutes = String(now.getMinutes()).padStart(2, '0');
               let formattedDate = `${localDate}T${hours}:${minutes}`;
@@ -226,7 +226,7 @@
         if (!isNaN(startDate)) {
           let minEndDate = new Date(startDate);
           minEndDate.setMinutes(minEndDate.getMinutes() + 1);
-          let localDate = minEndDate.toLocaleString('en-GB', { timeZone: 'UTC' }).split(', ')[0].split('/').reverse().join('-');
+          let localDate = minEndDate.toLocaleString('en-GB', { timeZone: 'EST' }).split(', ')[0].split('/').reverse().join('-');
           let hours = String(minEndDate.getHours()).padStart(2, '0');
           let minutes = String(minEndDate.getMinutes()).padStart(2, '0');
           let formattedDate = `${localDate}T${hours}:${minutes}`;
